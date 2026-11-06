@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Notas dos simulados, direção</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Leitor de PDF (pdf.js 3.11.174), guardado no próprio site para não depender de terceiros. -->
+<script src="lib/pdf.min.js"></script>
+<style>
+:root{
+  /* Mesmo visual da tela dos professores ("Fichário"). --verde é a cor das ações. */
+  --fundo:#F3F3F1;
+  --papel:#FFFFFF;
+  --tinta:#1E2021;
+  --tinta-suave:#5F6366;
+  --linha:#DADBD8;
+  --verde:#1E2021;
+  --verde-claro:#ECECE9;
+  --ambar:#8A5A00;
+  --ambar-claro:#FFF1C2;
+  --vermelho:#C0262D;
+  --vermelho-claro:#FBE3E4;
+  --foco:#1E2021;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --fundo:#161717;
+    --papel:#1F2121;
+    --tinta:#ECEDEB;
+    --tinta-suave:#A3A7A9;
+    --linha:#353838;
+    --verde:#ECEDEB;
+    --verde-claro:#2B2E2E;
+    --ambar:#F2C460;
+    --ambar-claro:#3A3018;
+    --vermelho:#FF8C8C;
+    --vermelho-claro:#3D2224;
+    --foco:#ECEDEB;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--fundo);
+  color:var(--tinta);
+  font-family:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;
+  line-height:1.5;
+}
+.pagina{max-width:980px;margin:0 auto;padding:28px 18px 80px}
+header.topo{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+header.topo h1{font-size:30px;line-height:1.15;margin:0;font-weight:800;letter-spacing:-.01em}
+header.topo p{margin:4px 0 0;color:var(--tinta-suave)}
+.selo{font-size:14px;padding:6px 12px;border-radius:999px;background:var(--ambar-claro);color:var(--ambar);font-weight:700;display:none}
+.selo.visivel{display:inline-block}
+section.bloco{background:var(--papel);border:1px solid var(--linha);border-radius:4px;padding:22px;margin-bottom:20px}
+section.bloco h2{font-size:21px;margin:0 0 4px}
+section.bloco > p.ajuda{margin:0 0 16px;color:var(--tinta-suave);max-width:68ch}
+label{display:block;font-weight:700;margin-bottom:6px}
+input[type=password],input[type=text],input[type=number]{
+  font:inherit;color:var(--tinta);background:var(--fundo);
+  border:1px solid var(--linha);border-radius:6px;padding:10px 12px;width:100%;max-width:320px;
+}
+input[type=number]{max-width:120px}
+button{
+  font:inherit;font-weight:700;cursor:pointer;border-radius:6px;padding:10px 16px;
+  border:1px solid var(--verde);background:var(--verde);color:var(--papel);
+}
+button.secundario{background:transparent;color:var(--verde)}
+button.perigo{background:transparent;color:var(--vermelho);border-color:var(--vermelho)}
+button.pequeno{padding:5px 10px;font-size:14px}
+button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.campo{margin-bottom:14px}
+.mensagem{margin-top:14px;padding:10px 14px;border-radius:6px;display:none}
+.mensagem.ok{display:block;background:var(--verde-claro);color:var(--verde)}
+.mensagem.erro{display:block;background:var(--vermelho-claro);color:var(--vermelho)}
+.mensagem.info{display:block;background:var(--fundo);color:var(--tinta-suave)}
+.oculto{display:none !important}
+
+.soltar{
+  border:2px dashed var(--linha);border-radius:10px;padding:34px 18px;text-align:center;
+  color:var(--tinta-suave);cursor:pointer;margin-top:14px;
+}
+.soltar.ativo{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
+.soltar strong{color:var(--tinta);display:block;font-size:18px;margin-bottom:4px}
+
+ul.arquivos{list-style:none;margin:16px 0 0;padding:0}
+ul.arquivos li{padding:10px 0;border-top:1px solid var(--linha);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.arquivos .nomearq{font-size:14px;color:var(--tinta-suave);word-break:break-all}
+ul.arquivos .desc{font-weight:700}
+ul.arquivos .detalhe{font-size:14px;color:var(--vermelho);margin-top:2px}
+.etiquetas{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+.etq{font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.etq.verde{background:var(--verde-claro);color:var(--verde)}
+.etq.ambar{background:var(--ambar-claro);color:var(--ambar)}
+.etq.vermelho{background:var(--vermelho-claro);color:var(--vermelho)}
+.etq.neutra{background:var(--fundo);color:var(--tinta-suave)}
+
+.conflito{border-top:1px solid var(--linha);padding:12px 0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.conflito .onde{font-size:14px;color:var(--tinta-suave)}
+
+.simulado{border-top:1px solid var(--linha);padding-top:18px;margin-top:18px}
+.simulado:first-of-type{border-top:none;margin-top:0;padding-top:0}
+.simulado-cab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.simulado-cab h3{margin:0;font-size:19px}
+.simulado-cab .resumo{color:var(--tinta-suave);font-size:14px}
+.rolagem{overflow-x:auto}
+table.grade{border-collapse:collapse;min-width:100%}
+table.grade th,table.grade td{border:1px solid var(--linha);padding:0;text-align:center}
+table.grade th{font-size:14px;padding:8px 10px;color:var(--tinta-suave);font-weight:700;background:var(--fundo)}
+table.grade th.turma{text-align:left;color:var(--tinta);background:var(--papel);white-space:nowrap}
+table.grade td button{
+  all:unset;cursor:pointer;display:block;width:100%;padding:9px 10px;font-weight:700;
+  font-variant-numeric:tabular-nums;box-sizing:border-box;
+}
+table.grade td button:focus-visible{outline:3px solid var(--foco);outline-offset:-3px}
+table.grade td.vazia{background:var(--vermelho-claro);color:var(--vermelho);font-size:14px;padding:9px 10px;font-weight:700}
+table.grade tr.diferente th.turma::after{content:" contagens diferentes";font-size:12px;color:var(--ambar);font-weight:700;display:block}
+table.grade td.selecionada{background:var(--verde-claro)}
+table.grade td.selecionada button{color:var(--verde)}
+
+.detalhe-lista{margin-top:12px;background:var(--fundo);border-radius:8px;padding:14px}
+.detalhe-lista h4{margin:0 0 8px;font-size:16px}
+.detalhe-lista table{border-collapse:collapse;width:100%;font-size:14px}
+.detalhe-lista td,.detalhe-lista th{padding:5px 8px;border-bottom:1px solid var(--linha);text-align:left}
+.detalhe-lista td.num,.detalhe-lista th.num{text-align:right;font-variant-numeric:tabular-nums}
+.vazio-banco{color:var(--tinta-suave);margin:0}
+.cod{display:block;font-size:12px;color:var(--tinta-suave);font-weight:400}
+.vale{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.vale label{margin:0;font-size:15px}
+.vale input{max-width:200px;padding:6px 10px}
+table.nomes{border-collapse:collapse;width:100%;max-width:620px}
+table.nomes th,table.nomes td{border-bottom:1px solid var(--linha);padding:6px 8px;text-align:left}
+table.nomes th{font-size:14px;color:var(--tinta-suave)}
+table.nomes td.codigo{font-weight:700;white-space:nowrap;width:1%}
+table.nomes input{max-width:none;padding:6px 10px}
+
+ol.passos{margin:12px 0 0;padding-left:22px;max-width:68ch}
+ol.passos li{margin-bottom:6px}
+code{font-size:.92em;background:var(--fundo);padding:1px 6px;border-radius:4px}
+dialog.caixa{
+  background:var(--papel);color:var(--tinta);border:1px solid var(--linha);border-radius:10px;
+  padding:22px;max-width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+dialog.caixa::backdrop{background:rgba(10,20,16,.45)}
+dialog.caixa p{margin:0 0 4px;max-width:60ch}
+dialog.caixa .acoes{justify-content:flex-end;margin-top:18px}
+dialog.caixa button.perigo{background:var(--vermelho);color:var(--papel)}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="pagina">
+
+<header class="topo">
+  <div>
+    <h1>Notas dos simulados</h1>
+    <p>Área da direção, CETI Antonio Deromi Soares</p>
+  </div>
+  <span class="selo" id="seloPendente">Alterações não baixadas</span>
+</header>
+
+<!-- ACESSO -->
+<section class="bloco" id="blocoAcesso">
+  <h2>Abrir os dados</h2>
+  <p class="ajuda">Digite a senha dos professores. Ela é usada para abrir e para trancar o arquivo de notas.</p>
+  <div class="campo">
+    <label for="senha">Senha</label>
+    <input type="password" id="senha" autocomplete="current-password">
+  </div>
+  <div class="acoes">
+    <button id="btAbrirSite">Abrir dados do site</button>
+    <button class="secundario" id="btAbrirArquivo">Abrir dados.enc do computador</button>
+    <button class="secundario" id="btComecar">Começar do zero</button>
+    <input type="file" id="arqDados" accept=".enc,application/json" class="oculto">
+  </div>
+  <div class="mensagem" id="msgAcesso"></div>
+</section>
+
+<div id="areaTrabalho" class="oculto">
+
+<!-- IMPORTAR -->
+<section class="bloco">
+  <h2>Adicionar PDFs</h2>
+  <p class="ajuda">Pode soltar vários de uma vez. Listas repetidas são ignoradas e listas da mesma turma e área (como inglês e espanhol) são somadas.</p>
+  <div class="campo">
+    <label for="ano">Ano dos simulados</label>
+    <input type="number" id="ano" min="2020" max="2100">
+  </div>
+  <div class="soltar" id="zonaSoltar" tabindex="0" role="button" aria-label="Escolher PDFs">
+    <strong>Solte os PDFs aqui</strong>
+    ou clique para escolher
+  </div>
+  <input type="file" id="arqPdfs" accept="application/pdf,.pdf" multiple class="oculto">
+  <div class="mensagem" id="msgPdfs"></div>
+  <ul class="arquivos" id="listaArquivos"></ul>
+</section>
+
+<!-- CONFLITOS -->
+<section class="bloco oculto" id="blocoConflitos">
+  <h2>Notas diferentes para o mesmo aluno</h2>
+  <p class="ajuda">O mesmo aluno apareceu com outra nota na mesma turma, área e simulado. Escolha qual vale.</p>
+  <div id="listaConflitos"></div>
+</section>
+
+<!-- BANCO -->
+<section class="bloco">
+  <h2>O que está no banco</h2>
+  <p class="ajuda">Cada número é a quantidade de alunos daquela turma na área. Clique para ver a lista. Turmas com números diferentes entre áreas do mesmo dia podem estar com um PDF faltando.</p>
+  <div id="banco"></div>
+</section>
+
+<!-- NOMES DAS TURMAS -->
+<section class="bloco">
+  <h2>Nomes das turmas</h2>
+  <p class="ajuda">É o nome que os professores veem no lugar do código. Turma nova ganha um nome sozinha quando o curso é conhecido; confira e corrija aqui se precisar.</p>
+  <div id="nomes"></div>
+</section>
+
+<!-- SALVAR -->
+<section class="bloco">
+  <h2>Publicar para os professores</h2>
+  <p class="ajuda">Nada vai para o site até você baixar o arquivo e enviá-lo ao GitHub.</p>
+  <div class="campo">
+    <label for="novaSenha">Trocar a senha (opcional)</label>
+    <input type="password" id="novaSenha" autocomplete="new-password" placeholder="Deixe vazio para manter a atual">
+  </div>
+  <div class="campo">
+    <label for="novaSenha2">Repita a nova senha</label>
+    <input type="password" id="novaSenha2" autocomplete="new-password">
+  </div>
+  <div class="acoes">
+    <button id="btBaixar">Baixar dados.enc</button>
+  </div>
+  <div class="mensagem" id="msgSalvar"></div>
+  <ol class="passos">
+    <li>Abra o repositório do sistema no GitHub.</li>
+    <li>Clique em <strong>Add file</strong> e depois em <strong>Upload files</strong>.</li>
+    <li>Arraste o <code>dados.enc</code> que acabou de baixar. Ele substitui o antigo.</li>
+    <li>Clique em <strong>Commit changes</strong>. Em cerca de um minuto os professores já veem as novas notas.</li>
+  </ol>
+</section>
+
+</div>
+</div>
+
+<dialog class="caixa" id="caixa">
+  <p id="caixaTexto"></p>
+  <div class="acoes">
+    <button class="secundario" id="caixaNao">Cancelar</button>
+    <button id="caixaSim">Continuar</button>
+  </div>
+</dialog>
+
+<script>
+/* ============================================================
+   Leitura dos PDFs
+   ============================================================ */
+function agruparLinhas(itens){
+  const linhas=[];
+  for(const it of itens){
+    if(!it.str || !it.str.trim()) continue;
+    const x=it.transform[4], y=it.transform[5];
+    let l=linhas.find(l=>Math.abs(l.y-y)<3);
+    if(!l){l={y,partes:[]};linhas.push(l);}
+    l.partes.push({x,s:it.str});
+  }
+  linhas.sort((a,b)=>b.y-a.y);
+  return linhas.map(l=>l.partes.sort((a,b)=>a.x-b.x).map(p=>p.s.trim()).join(' ').replace(/\s+/g,' ').trim());
+}
+function semAcento(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+const ORDEM_AREAS=['Linguagens','Ciências Humanas','Ciências da Natureza','Matemática'];
+// Código da SEDUC: curso + série + turma + I (ex.: MK3AI = Marketing, 3ª série, turma A).
+const CURSOS={DS:'Desenvolvimento de Sistemas',MK:'Marketing',LO:'Logística',GR:'Agropecuária',AO:'Alimentos',GT:'Guia de Turismo'};
+function nomeAutomatico(codigo){
+  const m=codigo.match(/^([A-Z]{2})(\d)([A-Z])/);
+  if(!m||!CURSOS[m[1]]) return codigo;
+  return `${CURSOS[m[1]]}, ${m[2]}ª série ${m[3]}`;
+}
+function nomeTurma(codigo){return (banco&&banco.nomesTurmas&&banco.nomesTurmas[codigo])||codigo;}
+function ordenarTurmas(a,b){return nomeTurma(a).localeCompare(nomeTurma(b),'pt-BR');}
+function nomeArea(bruto){
+  const t=semAcento(bruto).toUpperCase();
+  if(t.includes('LINGUAGENS')) return 'Linguagens';
+  if(t.includes('HUMANAS')) return 'Ciências Humanas';
+  if(t.includes('NATUREZA')) return 'Ciências da Natureza';
+  if(t.includes('MATEMATICA')) return 'Matemática';
+  return bruto.trim();
+}
+function interpretarLinhas(linhas){
+  const r={erros:[],alunos:[],avisos:[]};
+  const cab=linhas.find(l=>/SIMULADO/i.test(l));
+  const m=cab && cab.match(/(\d+)\s*[ºª°o]?\s*SIMULADO\s+(.*?)\s*\+?\s*(\d+)\s*[ºª°a]?\s*S[ÉE]RIE\s*-?\s*(\d+)\s*[ºª°o]?\s*DIA/i);
+  if(!m){r.erros.push('Cabeçalho do simulado não reconhecido.');return r;}
+  r.numero=+m[1]; r.tipo=((m[2]||'').trim()||'ENEM').toUpperCase(); r.serie=+m[3]; r.dia=+m[4];
+  const lt=linhas.find(l=>/^Turma\s*:/i.test(l));
+  const ld=linhas.find(l=>/^Disciplina\s*:/i.test(l));
+  if(!lt) r.erros.push('Linha "Turma:" não encontrada.'); else r.turma=lt.split(':')[1].trim().toUpperCase();
+  if(!ld) r.erros.push('Linha "Disciplina:" não encontrada.'); else {r.areaOriginal=ld.split(':').slice(1).join(':').trim(); r.area=nomeArea(r.areaOriginal);}
+  if(r.erros.length) return r;
+  const re=/^(.+?)\s+(\S+)\s+(\d+(?:[.,]\d+)?)\s+(\d+)\s*\/\s*(\d+)$/;
+  let pendente='';
+  for(const l of linhas){
+    if(l===cab||l===lt||l===ld||/^Escola\s*:/i.test(l)||/^Aluno\s+Turma/i.test(l)) continue;
+    const mm=(pendente?pendente+' '+l:l).match(re);
+    if(mm && mm[2].toUpperCase()===r.turma){
+      const nota=parseFloat(mm[3].replace(',','.')), acertos=+mm[4], total=+mm[5];
+      const nome=mm[1].replace(/\s+/g,' ').trim().toUpperCase();
+      const esperado=Math.round(acertos/total*100)/10;
+      if(Math.abs(esperado-nota)>0.051) r.avisos.push(`${nome}: nota ${mm[3]} não bate com ${acertos}/${total}.`);
+      r.alunos.push({nome,nota,acertos,total});
+      pendente='';
+    } else if(/^\d+\s*(de|\/)\s*\d+$/i.test(l) || /^p[áa]gina/i.test(l)){
+      continue;
+    } else {
+      if(pendente) r.avisos.push(`Linha não reconhecida: "${pendente}"`);
+      pendente=l;
+    }
+  }
+  if(pendente) r.avisos.push(`Linha não reconhecida: "${pendente}"`);
+  if(!r.alunos.length) r.erros.push('Nenhum aluno encontrado.');
+  return r;
+}
+async function lerPdf(arquivo){
+  const dados=new Uint8Array(await arquivo.arrayBuffer());
+  const doc=await pdfjsLib.getDocument({data:dados}).promise;
+  let linhas=[];
+  for(let i=1;i<=doc.numPages;i++){
+    const pg=await doc.getPage(i);
+    linhas=linhas.concat(agruparLinhas((await pg.getTextContent()).items));
+  }
+  return interpretarLinhas(linhas);
+}
+
+/* ============================================================
+   Banco de dados (em memória)
+   ============================================================ */
+function bancoVazio(){return {formato:'notas-simulados',versao:1,atualizadoEm:null,simulados:{},tabelas:{},nomesTurmas:{}};}
+function idSimulado(ano,r){return `${ano}-${r.tipo}-${r.serie}S-${r.numero}-D${r.dia}`;}
+function chaveTabela(sim,turma,area){return `${sim}|${turma}|${area}`;}
+function tituloSimulado(s){return `${s.numero}º Simulado ${s.tipo}, ${s.serie}ª série, ${s.dia}º dia`;}
+
+// Junta uma lista lida ao banco. Retorna o que aconteceu.
+function juntarLista(banco,ano,r){
+  const sim=idSimulado(ano,r);
+  if(!banco.simulados[sim]) banco.simulados[sim]={id:sim,ano,tipo:r.tipo,numero:r.numero,serie:r.serie,dia:r.dia,valePara:''};
+  if(!banco.nomesTurmas[r.turma]) banco.nomesTurmas[r.turma]=nomeAutomatico(r.turma);
+  const chave=chaveTabela(sim,r.turma,r.area);
+  if(!banco.tabelas[chave]) banco.tabelas[chave]={simulado:sim,turma:r.turma,area:r.area,alunos:[]};
+  const tab=banco.tabelas[chave];
+  const res={chave,novos:0,iguais:0,conflitos:[]};
+  for(const a of r.alunos){
+    const existente=tab.alunos.find(x=>x.nome===a.nome);
+    if(!existente){tab.alunos.push({...a});res.novos++;}
+    else if(existente.nota===a.nota && existente.acertos===a.acertos && existente.total===a.total){res.iguais++;}
+    else res.conflitos.push({chave,nome:a.nome,atual:{...existente},nova:{...a}});
+  }
+  return res;
+}
+
+/* ============================================================
+   Criptografia (AES-GCM com chave derivada da senha)
+   ============================================================ */
+const ITERACOES=300000;
+// O arquivo de notas fica numa pasta pública: senha curta pode ser descoberta por tentativa.
+const SENHA_MINIMA=12;
+const AVISO_SENHA=`A senha precisa ter pelo menos ${SENHA_MINIMA} letras. Uma frase curta funciona bem, como "simulado do deromi em novembro".`;
+function paraB64(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(s);}
+function deB64(b64){const s=atob(b64);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+async function derivarChave(senha,sal,iteracoes){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(senha),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:sal,iterations:iteracoes,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function cifrar(obj,senha){
+  const sal=crypto.getRandomValues(new Uint8Array(16));
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const chave=await derivarChave(senha,sal,ITERACOES);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},chave,new TextEncoder().encode(JSON.stringify(obj))));
+  return JSON.stringify({formato:'notas-simulados-cifrado',versao:1,kdf:'PBKDF2-SHA256',iteracoes:ITERACOES,sal:paraB64(sal),iv:paraB64(iv),dados:paraB64(ct)});
+}
+async function decifrar(texto,senha){
+  let env;
+  try{env=JSON.parse(texto);}catch(e){throw new Error('O arquivo não é um dados.enc válido.');}
+  if(env.formato!=='notas-simulados-cifrado') throw new Error('O arquivo não é um dados.enc válido.');
+  const chave=await derivarChave(senha,deB64(env.sal),env.iteracoes);
+  let claro;
+  try{claro=await crypto.subtle.decrypt({name:'AES-GCM',iv:deB64(env.iv)},chave,deB64(env.dados));}
+  catch(e){throw new Error('Senha incorreta.');}
+  return JSON.parse(new TextDecoder().decode(claro));
+}
+
+/* ============================================================
+   Interface
+   ============================================================ */
+const $=id=>document.getElementById(id);
+let banco=null, senhaAtual='', conflitos=[], pendente=false, celulaAberta=null;
+
+function mensagem(el,tipo,texto){el.className='mensagem '+tipo;el.textContent=texto;}
+// Pergunta "tem certeza?" dentro da página, sem a janela do navegador.
+function perguntar(texto,rotuloSim='Continuar',perigo=false){
+  return new Promise(resolve=>{
+    const d=$('caixa'), sim=$('caixaSim'), nao=$('caixaNao');
+    $('caixaTexto').textContent=texto;
+    sim.textContent=rotuloSim; sim.className=perigo?'perigo':'';
+    const fim=v=>{d.close();resolve(v);};
+    sim.onclick=()=>fim(true); nao.onclick=()=>fim(false);
+    d.oncancel=e=>{e.preventDefault();fim(false);};
+    d.showModal(); nao.focus();
+  });
+}
+function marcarPendente(v){pendente=v;$('seloPendente').classList.toggle('visivel',v);}
+window.addEventListener('beforeunload',e=>{if(pendente){e.preventDefault();e.returnValue='';}});
+function el(tag,attrs={},...filhos){
+  const e=document.createElement(tag);
+  for(const[k,v] of Object.entries(attrs)){
+    if(k==='class') e.className=v;
+    else if(k.startsWith('on')) e.addEventListener(k.slice(2),v);
+    else e.setAttribute(k,v);
+  }
+  for(const f of filhos){if(f==null)continue;e.append(f instanceof Node?f:document.createTextNode(String(f)));}
+  return e;
+}
+function fmtNota(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});}
+
+function abrirBanco(b){
+  banco=b;
+  if(!banco.simulados) banco.simulados={};
+  if(!banco.tabelas) banco.tabelas={};
+  if(!banco.nomesTurmas) banco.nomesTurmas={};
+  for(const t of Object.values(banco.tabelas)) if(!banco.nomesTurmas[t.turma]) banco.nomesTurmas[t.turma]=nomeAutomatico(t.turma);
+  $('areaTrabalho').classList.remove('oculto');
+  $('ano').value=new Date().getFullYear();
+  desenharBanco();
+}
+function lerSenha(){
+  const s=$('senha').value.trim();
+  if(!s){mensagem($('msgAcesso'),'erro','Digite a senha primeiro.');return null;}
+  return s;
+}
+
+$('btAbrirSite').addEventListener('click',async()=>{
+  const s=lerSenha(); if(!s) return;
+  if(location.protocol==='file:'){mensagem($('msgAcesso'),'erro','Aberto direto do computador, a página não consegue buscar o arquivo do site. Use "Abrir dados.enc do computador".');return;}
+  mensagem($('msgAcesso'),'info','Abrindo...');
+  try{
+    const resp=await fetch('dados.enc?t='+Date.now(),{cache:'no-store'});
+    if(resp.status===404){mensagem($('msgAcesso'),'erro','Ainda não existe dados.enc no site. Se é a primeira vez, use "Começar do zero".');return;}
+    if(!resp.ok) throw new Error('O site respondeu com erro '+resp.status+'.');
+    const b=await decifrar(await resp.text(),s);
+    senhaAtual=s; abrirBanco(b);
+    mensagem($('msgAcesso'),'ok',`Dados abertos: ${Object.keys(b.simulados).length} simulado(s).`);
+  }catch(e){mensagem($('msgAcesso'),'erro',e.message);}
+});
+$('btAbrirArquivo').addEventListener('click',()=>{if(lerSenha()) $('arqDados').click();});
+$('arqDados').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  const s=lerSenha(); if(!s) return;
+  mensagem($('msgAcesso'),'info','Abrindo...');
+  try{
+    const b=await decifrar(await f.text(),s);
+    senhaAtual=s; abrirBanco(b);
+    mensagem($('msgAcesso'),'ok',`Dados abertos: ${Object.keys(b.simulados).length} simulado(s).`);
+  }catch(err){mensagem($('msgAcesso'),'erro',err.message);}
+});
+$('btComecar').addEventListener('click',async()=>{
+  const s=lerSenha(); if(!s) return;
+  if(s.length<SENHA_MINIMA){mensagem($('msgAcesso'),'erro',AVISO_SENHA);return;}
+  if(banco && !(await perguntar('Começar do zero descarta tudo o que está aberto agora.','Descartar e começar',true))) return;
+  senhaAtual=s; abrirBanco(bancoVazio());
+  mensagem($('msgAcesso'),'ok','Banco vazio criado. Agora adicione os PDFs.');
+});
+
+/* ---------- PDFs ---------- */
+const zona=$('zonaSoltar');
+zona.addEventListener('click',()=>$('arqPdfs').click());
+zona.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('arqPdfs').click();}});
+zona.addEventListener('dragover',e=>{e.preventDefault();zona.classList.add('ativo');});
+zona.addEventListener('dragleave',()=>zona.classList.remove('ativo'));
+zona.addEventListener('drop',e=>{e.preventDefault();zona.classList.remove('ativo');processarPdfs([...e.dataTransfer.files]);});
+$('arqPdfs').addEventListener('change',e=>{processarPdfs([...e.target.files]);e.target.value='';});
+
+async function processarPdfs(arquivos){
+  const pdfs=arquivos.filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
+  if(!pdfs.length) return;
+  const ano=parseInt($('ano').value,10);
+  const msg=$('msgPdfs');
+  if(!ano||ano<2020||ano>2100){mensagem(msg,'erro','Confira o ano dos simulados.');return;}
+  if(typeof pdfjsLib==='undefined'){mensagem(msg,'erro','O leitor de PDF não carregou. Confira a internet e recarregue a página.');return;}
+  msg.className='mensagem';
+  pdfjsLib.GlobalWorkerOptions.workerSrc='lib/pdf.worker.min.js';
+  const lista=$('listaArquivos');
+  for(const f of pdfs){
+    const li=el('li',{},el('div',{},el('div',{class:'desc'},'Lendo...'),el('div',{class:'nomearq'},f.name)));
+    lista.prepend(li);
+    let r;
+    try{r=await lerPdf(f);}catch(e){r={erros:['Não foi possível abrir o PDF.'],avisos:[],alunos:[]};}
+    li.replaceChildren(...linhaArquivo(f.name,r,ano));
+  }
+  desenharConflitos(); desenharBanco();
+}
+function linhaArquivo(nome,r,ano){
+  const esq=el('div',{});
+  const dir=el('div',{class:'etiquetas'});
+  if(r.erros.length){
+    esq.append(el('div',{class:'desc'},'Não foi possível ler'),el('div',{class:'nomearq'},nome));
+    for(const e of r.erros) esq.append(el('div',{class:'detalhe'},e));
+    dir.append(el('span',{class:'etq vermelho'},'erro'));
+    return [esq,dir];
+  }
+  esq.append(el('div',{class:'desc'},`${r.turma}, ${r.area}`),
+             el('div',{class:'nomearq'},`${r.numero}º Simulado ${r.tipo}, ${r.serie}ª série, ${r.dia}º dia (${ano}) | ${nome}`));
+  if(r.avisos.length){
+    for(const a of r.avisos) esq.append(el('div',{class:'detalhe'},a));
+    dir.append(el('span',{class:'etq ambar'},`${r.avisos.length} aviso(s), lista não adicionada`));
+    return [esq,dir];
+  }
+  const res=juntarLista(banco,ano,r);
+  if(res.novos) {dir.append(el('span',{class:'etq verde'},`+${res.novos} aluno(s)`));marcarPendente(true);}
+  if(res.iguais && !res.novos && !res.conflitos.length) dir.append(el('span',{class:'etq neutra'},'repetida, ignorada'));
+  else if(res.iguais) dir.append(el('span',{class:'etq neutra'},`${res.iguais} já existiam`));
+  if(res.conflitos.length){dir.append(el('span',{class:'etq ambar'},`${res.conflitos.length} nota(s) diferente(s)`));conflitos.push(...res.conflitos);}
+  return [esq,dir];
+}
+
+/* ---------- Conflitos ---------- */
+function desenharConflitos(){
+  const box=$('listaConflitos'); box.replaceChildren();
+  $('blocoConflitos').classList.toggle('oculto',!conflitos.length);
+  conflitos.forEach((c,i)=>{
+    const tab=banco.tabelas[c.chave]; const sim=banco.simulados[tab.simulado];
+    box.append(el('div',{class:'conflito'},
+      el('div',{},el('div',{class:'desc'},c.nome),el('div',{class:'onde'},`${nomeTurma(tab.turma)}, ${tab.area}, ${tituloSimulado(sim)}`)),
+      el('div',{class:'acoes',style:'margin:0'},
+        el('button',{class:'secundario pequeno',onclick:()=>resolver(i,false)},`Manter ${fmtNota(c.atual.nota)} (${c.atual.acertos}/${c.atual.total})`),
+        el('button',{class:'secundario pequeno',onclick:()=>resolver(i,true)},`Usar ${fmtNota(c.nova.nota)} (${c.nova.acertos}/${c.nova.total})`))));
+  });
+}
+function resolver(i,usarNova){
+  const c=conflitos[i];
+  if(usarNova){
+    const tab=banco.tabelas[c.chave];
+    const a=tab&&tab.alunos.find(x=>x.nome===c.nome);
+    if(a){Object.assign(a,c.nova);marcarPendente(true);}
+  }
+  conflitos.splice(i,1);
+  desenharConflitos(); desenharBanco();
+}
+
+/* ---------- Visão do banco ---------- */
+function ordenarSimulados(a,b){return b.ano-a.ano||a.serie-b.serie||b.numero-a.numero||a.dia-b.dia||a.tipo.localeCompare(b.tipo);}
+function ordenarAreas(a,b){const ia=ORDEM_AREAS.indexOf(a),ib=ORDEM_AREAS.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);}
+
+function desenharNomes(){
+  const box=$('nomes'); box.replaceChildren();
+  const usados=new Set(Object.values(banco.tabelas).map(t=>t.turma));
+  const codigos=[...usados].sort((a,b)=>(a.match(/\d/)||[''])[0].localeCompare((b.match(/\d/)||[''])[0])||ordenarTurmas(a,b));
+  if(!codigos.length){box.append(el('p',{class:'vazio-banco'},'As turmas aparecem aqui depois dos PDFs.'));return;}
+  const tb=el('tbody');
+  for(const c of codigos){
+    const inp=el('input',{type:'text',value:nomeTurma(c),'aria-label':`Nome da turma ${c}`});
+    inp.addEventListener('change',()=>{
+      const v=inp.value.trim()||nomeAutomatico(c);
+      inp.value=v;
+      if(banco.nomesTurmas[c]!==v){banco.nomesTurmas[c]=v;marcarPendente(true);desenharConflitos();desenharBanco(false);}
+    });
+    tb.append(el('tr',{},el('td',{class:'codigo'},c),el('td',{},inp)));
+  }
+  box.append(el('table',{class:'nomes'},el('thead',{},el('tr',{},el('th',{},'Código'),el('th',{},'Nome que os professores veem'))),tb));
+}
+
+function desenharBanco(comNomes=true){
+  if(comNomes) desenharNomes();
+  const box=$('banco'); box.replaceChildren();
+  const sims=Object.values(banco.simulados).sort(ordenarSimulados);
+  if(!sims.length){box.append(el('p',{class:'vazio-banco'},'Nenhum simulado ainda. Adicione os PDFs acima.'));return;}
+  const tabelas=Object.values(banco.tabelas);
+  for(const s of sims){
+    const minhas=tabelas.filter(t=>t.simulado===s.id);
+    const esperadas=s.dia===1?['Linguagens','Ciências Humanas']:s.dia===2?['Ciências da Natureza','Matemática']:[];
+    const areas=[...new Set([...esperadas,...minhas.map(t=>t.area)])].sort(ordenarAreas);
+    // turmas da mesma série e ano que já apareceram em qualquer simulado, para notar ausências
+    const turmasSerie=new Set(tabelas.filter(t=>{const o=banco.simulados[t.simulado];return o&&o.serie===s.serie&&o.ano===s.ano;}).map(t=>t.turma));
+    const turmas=[...turmasSerie].sort(ordenarTurmas);
+    const totalAlunos=new Set(minhas.flatMap(t=>t.alunos.map(a=>t.turma+'|'+a.nome))).size;
+
+    const bloco=el('div',{class:'simulado'});
+    bloco.append(el('div',{class:'simulado-cab'},
+      el('div',{},el('h3',{},tituloSimulado(s)),el('div',{class:'resumo'},`${s.ano}, ${turmas.length} turma(s), ${totalAlunos} aluno(s)`)),
+      el('button',{class:'perigo pequeno',onclick:()=>excluirSimulado(s.id)},'Excluir simulado')));
+
+    // Para qual nota do iSEduc esse simulado vale (ex.: NM2). Os professores veem isso em destaque.
+    const idVale='vale-'+s.id;
+    const vale=el('input',{type:'text',id:idVale,value:s.valePara||'',placeholder:'Ex.: NM2'});
+    vale.addEventListener('change',()=>{const v=vale.value.trim();if((s.valePara||'')!==v){s.valePara=v;marcarPendente(true);}});
+    bloco.append(el('div',{class:'vale'},el('label',{for:idVale},'Vale para a nota'),vale));
+
+    const thead=el('tr',{},el('th',{class:'turma'},'Turma'),...areas.map(a=>el('th',{},a)));
+    const corpo=el('tbody');
+    for(const tu of turmas){
+      const contagens=areas.map(a=>{const t=banco.tabelas[chaveTabela(s.id,tu,a)];return t?t.alunos.length:0;});
+      const preenchidas=contagens.filter(n=>n>0);
+      const diferente=preenchidas.length>1 && new Set(preenchidas).size>1;
+      const tr=el('tr',{class:diferente?'diferente':''},el('th',{class:'turma',scope:'row'},nomeTurma(tu),el('span',{class:'cod'},tu)));
+      areas.forEach((a,i)=>{
+        const chave=chaveTabela(s.id,tu,a);
+        if(!contagens[i]) tr.append(el('td',{class:'vazia'},'falta'));
+        else{
+          const td=el('td',{class:celulaAberta===chave?'selecionada':''},
+            el('button',{'aria-label':`${nomeTurma(tu)}, ${a}: ${contagens[i]} alunos. Ver lista`,onclick:()=>{celulaAberta=celulaAberta===chave?null:chave;desenharBanco();}},contagens[i]));
+          tr.append(td);
+        }
+      });
+      corpo.append(tr);
+    }
+    bloco.append(el('div',{class:'rolagem'},el('table',{class:'grade'},el('thead',{},thead),corpo)));
+
+    if(celulaAberta && banco.tabelas[celulaAberta] && banco.tabelas[celulaAberta].simulado===s.id){
+      const t=banco.tabelas[celulaAberta];
+      const alunos=[...t.alunos].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+      const tb=el('tbody');
+      for(const a of alunos) tb.append(el('tr',{},el('td',{},a.nome),el('td',{class:'num'},fmtNota(a.nota)),el('td',{class:'num'},`${a.acertos}/${a.total}`)));
+      bloco.append(el('div',{class:'detalhe-lista'},
+        el('h4',{},`${nomeTurma(t.turma)}, ${t.area}`),
+        el('div',{class:'rolagem'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Aluno'),el('th',{class:'num'},'Nota'),el('th',{class:'num'},'Acertos'))),tb)),
+        el('div',{class:'acoes'},el('button',{class:'perigo pequeno',onclick:()=>excluirTabela(celulaAberta)},'Excluir esta lista'))));
+    }
+    box.append(bloco);
+  }
+}
+async function excluirTabela(chave){
+  const t=banco.tabelas[chave]; if(!t) return;
+  if(!(await perguntar(`Excluir a lista de ${t.turma}, ${t.area}? Os ${t.alunos.length} alunos saem do banco.`,'Excluir lista',true))) return;
+  delete banco.tabelas[chave];
+  if(!Object.values(banco.tabelas).some(x=>x.simulado===t.simulado)) delete banco.simulados[t.simulado];
+  conflitos=conflitos.filter(c=>c.chave!==chave);
+  celulaAberta=null; marcarPendente(true); desenharConflitos(); desenharBanco();
+}
+async function excluirSimulado(id){
+  const s=banco.simulados[id];
+  if(!(await perguntar(`Excluir todo o ${tituloSimulado(s)} de ${s.ano}? Todas as listas dele saem do banco.`,'Excluir simulado',true))) return;
+  for(const k of Object.keys(banco.tabelas)) if(banco.tabelas[k].simulado===id) delete banco.tabelas[k];
+  delete banco.simulados[id];
+  conflitos=conflitos.filter(c=>!c.chave.startsWith(id+'|'));
+  celulaAberta=null; marcarPendente(true); desenharConflitos(); desenharBanco();
+}
+
+/* ---------- Salvar ---------- */
+$('btBaixar').addEventListener('click',async()=>{
+  const n1=$('novaSenha').value.trim(), n2=$('novaSenha2').value.trim();
+  let senha=senhaAtual;
+  if(n1||n2){
+    if(n1!==n2){mensagem($('msgSalvar'),'erro','As duas novas senhas não são iguais.');return;}
+    senha=n1;
+  }
+  if(senha.length<SENHA_MINIMA){mensagem($('msgSalvar'),'erro',AVISO_SENHA+' Escreva a senha nova nos dois campos acima.');return;}
+  if(conflitos.length && !(await perguntar(`Ainda há ${conflitos.length} nota(s) diferente(s) sem decisão. Nesses casos fica a nota que já estava.`,'Baixar assim mesmo'))) return;
+  mensagem($('msgSalvar'),'info','Trancando o arquivo...');
+  try{
+    banco.atualizadoEm=new Date().toISOString();
+    const texto=await cifrar(banco,senha);
+    const url=URL.createObjectURL(new Blob([texto],{type:'application/octet-stream'}));
+    const a=document.createElement('a'); a.href=url; a.download='dados.enc'; document.body.append(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    const trocou=senha!==senhaAtual;
+    senhaAtual=senha; $('senha').value=senha; $('novaSenha').value=''; $('novaSenha2').value='';
+    marcarPendente(false);
+    mensagem($('msgSalvar'),'ok',trocou?'Arquivo baixado com a nova senha. Avise os professores.':'Arquivo baixado. Agora envie ao GitHub seguindo os passos abaixo.');
+  }catch(e){mensagem($('msgSalvar'),'erro','Não foi possível gerar o arquivo: '+e.message);}
+});
+</script>
+</body>
+</html>

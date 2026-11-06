@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Notas dos simulados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Biblioteca da planilha (SheetJS 0.18.5), guardada no próprio site para não depender de terceiros. -->
+<script src="lib/xlsx.full.min.js" defer></script>
+<style>
+/* Visual "Fichário": as áreas são as abas coloridas do divisor do fichário.
+   Nota abaixo de 6 em vermelho, de 6 para cima em azul. */
+:root{
+  --fundo:#F3F3F1; --papel:#FFFFFF; --tinta:#1E2021; --suave:#5F6366; --fio:#DADBD8; --campo:#B9BBB7;
+  --vermelho:#C0262D; --azul:#1F5FBF; --erro-claro:#FBE3E4;
+  --amarelo:#FFE45C;
+  --ling:#FFE45C; --hum:#D6C6F7; --nat:#A8E6A1; --mat:#FFD08A;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --fundo:#161717; --papel:#1F2121; --tinta:#ECEDEB; --suave:#A3A7A9; --fio:#353838; --campo:#555958;
+    --vermelho:#FF8C8C; --azul:#8DB8FF; --erro-claro:#3D2224;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--fundo);color:var(--tinta);font:16px/1.5 "Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.pagina{max-width:920px;margin:0 auto;padding:20px 16px 64px}
+.topo{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:18px}
+.topo h1{margin:0;font-size:22px;font-weight:800}
+.topo p{margin:0;color:var(--suave);font-size:15px}
+.link{font:inherit;font-size:15px;color:var(--suave);background:none;border:0;padding:8px 0;text-decoration:underline;cursor:pointer;min-height:44px}
+label{display:block;font-size:14px;font-weight:600;color:var(--suave);margin-bottom:3px}
+input[type=password],select{
+  width:100%;font:inherit;font-weight:600;color:var(--tinta);background:var(--papel);
+  border:1px solid var(--campo);border-radius:4px;padding:9px 10px;min-height:44px;min-width:0;
+}
+input[type=password]{max-width:320px;font-weight:400}
+button.botao{font:inherit;font-weight:700;font-size:15px;padding:8px 16px;min-height:44px;border-radius:4px;cursor:pointer;
+  border:1px solid var(--tinta);background:var(--papel);color:var(--tinta)}
+button.botao.cheio{background:var(--tinta);color:var(--papel)}
+button:disabled{opacity:.5;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
+.mensagem{margin-top:14px;padding:10px 14px;border-radius:4px;display:none}
+.mensagem.ok{display:block;background:var(--papel);border:1px solid var(--fio)}
+.mensagem.erro{display:block;background:var(--erro-claro);color:var(--vermelho)}
+.mensagem.info{display:block;color:var(--suave)}
+.oculto{display:none !important}
+
+/* Entrar */
+.entrar{background:var(--papel);border:1px solid var(--fio);padding:20px;max-width:460px}
+.entrar h2{margin:0 0 12px;font-size:20px}
+.lembrar{display:flex;align-items:center;gap:8px;font-weight:400;color:var(--tinta);font-size:16px;margin:12px 0 16px}
+.lembrar input{width:20px;height:20px;margin:0;accent-color:var(--tinta)}
+
+/* Escolhas */
+.escolhas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:22px}
+@media (max-width:640px){.escolhas{grid-template-columns:minmax(0,1fr)}}
+
+/* Abas do fichário */
+.abas{display:flex;gap:4px;padding-left:10px;overflow-x:auto}
+.abas button{font:inherit;font-weight:700;font-size:15px;color:#1E2021;border:1px solid var(--fio);border-bottom:0;
+  border-radius:8px 8px 0 0;padding:9px 16px 8px;min-height:44px;cursor:pointer;white-space:nowrap;opacity:.7}
+.abas button[aria-selected=true]{opacity:1;position:relative;top:1px;padding-bottom:10px}
+.folha{background:var(--papel);border:1px solid var(--fio);border-top:6px solid var(--cor-aba,var(--ling));padding:20px}
+@media (max-width:640px){.folha{padding:14px 12px}}
+h2.turma{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
+.sub{margin:0;color:var(--suave)}
+.lancar{margin:12px 0 0;font-size:19px}
+.lancar b{background:linear-gradient(100deg,transparent 2%,var(--amarelo) 4%,var(--amarelo) 95%,transparent 97%);padding:1px 6px;color:#1E2021}
+.resumo{margin:8px 0 0;color:var(--suave)}
+.resumo b{color:var(--tinta)}
+.explica{margin:6px 0 0;color:var(--suave);font-size:15px;max-width:70ch}
+.ferramentas{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:20px 0 10px}
+.ordem{display:inline-flex}
+.ordem button{border-radius:0}
+.ordem button:first-child{border-radius:4px 0 0 4px}
+.ordem button:last-child{border-radius:0 4px 4px 0;border-left:0}
+.ordem button[aria-pressed=true]{background:var(--tinta);color:var(--papel)}
+
+/* Lista */
+.linha{display:grid;grid-template-columns:2.2rem minmax(0,1fr) 5.2rem 4.6rem 6.6rem 5.4rem;gap:4px 10px;align-items:center;
+  padding:7px 4px;border-bottom:1px solid var(--fio);font-variant-numeric:tabular-nums}
+.linha.cab{font-size:13px;font-weight:600;color:var(--suave);border-bottom:2px solid var(--tinta);padding:6px 4px}
+.linha .n{text-align:right;color:var(--suave)}
+.linha .aluno{font-weight:500;overflow-wrap:anywhere}
+.linha .nota,.linha .final{text-align:right;font-weight:800}
+.linha .final{font-size:17px}
+.linha .ac{text-align:right;color:var(--suave)}
+.cab .nota,.cab .final,.cab .ac{font-weight:600;font-size:13px}
+.baixa{color:var(--vermelho)} .boa{color:var(--azul)}
+.linha .qual input{width:100%;font:inherit;font-weight:600;text-align:center;color:var(--tinta);background:var(--papel);
+  border:1px solid var(--campo);border-radius:4px;padding:6px 4px;min-height:44px}
+.linha .qual input.invalida{border-color:var(--vermelho);background:var(--erro-claro)}
+.rotulo{display:none}
+@media (max-width:640px){
+  .linha{grid-template-columns:1.8rem minmax(0,1fr) auto;gap:2px 10px;padding:10px 2px}
+  .linha.cab{display:none}
+  .linha .n{grid-row:1/4;align-self:start}
+  .linha .aluno{grid-column:2;grid-row:1}
+  .linha .final{grid-column:3;grid-row:1}
+  .linha .nota,.linha .ac{grid-row:2;text-align:left;font-weight:400;font-size:15px;color:var(--suave)}
+  .linha .nota{grid-column:2}
+  .linha .ac{grid-column:3;text-align:right}
+  .linha .ac::after{content:" acertos"}
+  .linha .final::before{content:"Final ";font-weight:400;font-size:14px;color:var(--suave)}
+  .linha .qual{grid-column:2/4;grid-row:3;display:flex;align-items:center;gap:10px;margin-top:4px}
+  .linha .qual input{width:6rem}
+  .rotulo{display:inline;font-size:15px;color:var(--suave)}
+}
+.legenda{margin:10px 0 0;font-size:14px;color:var(--suave)}
+.sem-dados{color:var(--suave);margin:14px 0 0}
+.rodape{margin-top:18px;font-size:15px;color:var(--suave)}
+</style>
+</head>
+<body>
+<div class="pagina">
+
+<header class="topo">
+  <div><h1>Notas dos simulados</h1><p>CETI Antonio Deromi Soares</p></div>
+  <button class="link oculto" id="btSair">Sair</button>
+</header>
+
+<!-- ENTRAR -->
+<section class="entrar" id="blocoEntrar">
+  <h2>Entrar</h2>
+  <form id="formEntrar">
+    <label for="senha">Senha dos professores</label>
+    <input type="password" id="senha" autocomplete="current-password">
+    <label class="lembrar"><input type="checkbox" id="lembrar"> Lembrar a senha neste aparelho</label>
+    <button type="submit" class="botao cheio" id="btEntrar">Entrar</button>
+  </form>
+  <div class="mensagem" id="msgEntrar"></div>
+</section>
+
+<div id="painel" class="oculto">
+  <div class="escolhas">
+    <div><label for="selTurma">Turma</label><select id="selTurma"></select></div>
+    <div><label for="selSimulado">Simulado</label><select id="selSimulado"></select></div>
+  </div>
+
+  <div class="abas" role="tablist" aria-label="Área" id="abas"></div>
+  <section class="folha" role="tabpanel" id="folha">
+    <h2 class="turma" id="tituloTurma"></h2>
+    <p class="sub" id="subtitulo"></p>
+    <p class="lancar oculto" id="lancar"></p>
+    <p class="resumo" id="resumo"></p>
+    <p class="explica">O qualitativo é opcional, de 0 a 10. Com ele, a nota final é a média entre o simulado e o qualitativo. Sem ele, a nota final é a do simulado.</p>
+
+    <div class="ferramentas">
+      <div class="ordem" role="group" aria-label="Ordem da lista">
+        <button type="button" class="botao" id="ordNome" aria-pressed="true">Ordem alfabética</button>
+        <button type="button" class="botao" id="ordNota" aria-pressed="false">Maior nota final</button>
+      </div>
+      <button class="botao" id="btExcel">Baixar planilha do Excel</button>
+    </div>
+
+    <div id="lista" role="list"></div>
+    <p class="legenda"><span class="baixa"><b>Vermelho</b></span>: abaixo de 6. <span class="boa"><b>Azul</b></span>: 6 ou mais.</p>
+    <div class="mensagem" id="msgResultado"></div>
+  </section>
+
+  <p class="rodape">As notas de qualitativo ficam guardadas só neste aparelho.
+    <button class="link" id="btExportar">Baixar uma cópia</button> ou
+    <button class="link" id="btImportar">trazer uma cópia</button>.
+    <input type="file" id="arqCopia" accept=".json,application/json" class="oculto">
+  </p>
+  <div class="mensagem" id="msgCopia"></div>
+</div>
+</div>
+
+<script>
+/* ============================================================
+   Guardado no aparelho (pode falhar em janela anônima: tudo continua funcionando)
+   ============================================================ */
+const CHAVE_SENHA='notasSimulados.senha', CHAVE_ESCOLHA='notasSimulados.escolha', CHAVE_QUAL='notasSimulados.qualitativos';
+function ler(chave,padrao){try{const v=localStorage.getItem(chave);return v==null?padrao:JSON.parse(v);}catch(e){return padrao;}}
+function gravar(chave,valor){try{localStorage.setItem(chave,JSON.stringify(valor));return true;}catch(e){return false;}}
+function apagar(chave){try{localStorage.removeItem(chave);}catch(e){}}
+
+/* ============================================================
+   Abrir o arquivo trancado (mesmo formato do admin.html)
+   ============================================================ */
+function deB64(b64){const s=atob(b64);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+async function derivarChave(senha,sal,iteracoes){
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(senha),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:sal,iterations:iteracoes,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+}
+async function decifrar(texto,senha){
+  let env;
+  try{env=JSON.parse(texto);}catch(e){throw new Error('O arquivo de notas está com defeito. Avise a direção.');}
+  if(env.formato!=='notas-simulados-cifrado') throw new Error('O arquivo de notas está com defeito. Avise a direção.');
+  const chave=await derivarChave(senha,deB64(env.sal),env.iteracoes);
+  let claro;
+  try{claro=await crypto.subtle.decrypt({name:'AES-GCM',iv:deB64(env.iv)},chave,deB64(env.dados));}
+  catch(e){const erro=new Error('Senha incorreta.');erro.senhaErrada=true;throw erro;}
+  return JSON.parse(new TextDecoder().decode(claro));
+}
+async function baixarDados(senha){
+  let resp;
+  try{resp=await fetch('dados.enc?t='+Date.now(),{cache:'no-store'});}
+  catch(e){throw new Error('Não foi possível buscar as notas. Confira a internet e tente de novo.');}
+  if(resp.status===404) throw new Error('As notas ainda não foram publicadas pela direção.');
+  if(!resp.ok) throw new Error('Não foi possível buscar as notas (erro '+resp.status+'). Tente de novo em alguns minutos.');
+  return decifrar(await resp.text(),senha);
+}
+
+/* ============================================================
+   Utilidades
+   ============================================================ */
+const $=id=>document.getElementById(id);
+function el(tag,attrs={},...filhos){
+  const e=document.createElement(tag);
+  for(const[k,v] of Object.entries(attrs)){
+    if(k==='class') e.className=v;
+    else if(k.startsWith('on')) e.addEventListener(k.slice(2),v);
+    else e.setAttribute(k,v);
+  }
+  for(const f of filhos){if(f==null)continue;e.append(f instanceof Node?f:document.createTextNode(String(f)));}
+  return e;
+}
+function mensagem(alvo,tipo,texto){alvo.className='mensagem '+tipo;alvo.textContent=texto;}
+function limparMensagem(alvo){alvo.className='mensagem';alvo.textContent='';}
+function fmtNota(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});}
+function corNota(n){return n<6?'baixa':'boa';}
+function semAcento(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'');}
+const AREAS=[
+  {nome:'Linguagens',cor:'var(--ling)'},
+  {nome:'Ciências Humanas',cor:'var(--hum)'},
+  {nome:'Ciências da Natureza',cor:'var(--nat)'},
+  {nome:'Matemática',cor:'var(--mat)'}
+];
+function infoArea(a){return AREAS.find(x=>x.nome===a)||{nome:a,cor:'var(--fio)'};}
+function ordemArea(a){const i=AREAS.findIndex(x=>x.nome===a);return i<0?99:i;}
+function serieDoCodigo(c){const m=c.match(/\d/);return m?+m[0]:0;}
+
+// Nota de qualitativo: aceita "7", "7,5" ou "7.5", de 0 a 10. Vazio = sem qualitativo.
+function lerQualitativo(texto){
+  const t=String(texto).trim().replace(',','.');
+  if(t==='') return {vazio:true};
+  if(!/^\d{1,2}(\.\d{1,2})?$/.test(t)) return {erro:true};
+  const n=parseFloat(t);
+  return n>=0&&n<=10?{valor:n}:{erro:true};
+}
+// Nota final: média entre o simulado e o qualitativo, com uma casa (5 para cima arredonda para cima).
+function notaFinal(simulado,qual){
+  if(qual==null) return simulado;
+  return Math.round((simulado+qual)/2*10+1e-9)/10;
+}
+
+/* ============================================================
+   Estado
+   ============================================================ */
+let banco=null, ordem='nome', areaAtual='';
+let qualitativos=ler(CHAVE_QUAL,{});
+function nomeTurma(c){return (banco.nomesTurmas&&banco.nomesTurmas[c])||c;}
+function chaveTabela(sim,turma,area){return `${sim}|${turma}|${area}`;}
+function tituloSimulado(s){return `${s.numero}º simulado ${s.tipo}, ${s.dia}º dia, ${s.ano}`;}
+function ordenarSimuladosRecentes(a,b){return b.ano-a.ano||b.numero-a.numero||a.dia-b.dia||a.tipo.localeCompare(b.tipo);}
+function chaveQual(tab,nome){return `${tab.simulado}|${tab.turma}|${tab.area}|${nome}`;}
+function qualDe(tab,nome){const v=qualitativos[chaveQual(tab,nome)];return typeof v==='number'?v:null;}
+
+/* ============================================================
+   Entrar e sair
+   ============================================================ */
+async function entrar(senha,automatico){
+  const msg=$('msgEntrar');
+  mensagem(msg,'info','Abrindo as notas...');
+  $('btEntrar').disabled=true;
+  try{
+    banco=await baixarDados(senha);
+    if(!banco.tabelas||!Object.keys(banco.tabelas).length) throw new Error('Ainda não há notas publicadas.');
+    if(!automatico){ if($('lembrar').checked) gravar(CHAVE_SENHA,senha); else apagar(CHAVE_SENHA); }
+    limparMensagem(msg); $('senha').value='';
+    $('blocoEntrar').classList.add('oculto'); $('painel').classList.remove('oculto'); $('btSair').classList.remove('oculto');
+    montarTurmas();
+  }catch(e){
+    if(e.senhaErrada && automatico){apagar(CHAVE_SENHA);mensagem(msg,'erro','A senha mudou. Digite a senha nova.');}
+    else mensagem(msg,'erro',e.message);
+    $('senha').focus();
+  }finally{$('btEntrar').disabled=false;}
+}
+$('formEntrar').addEventListener('submit',e=>{
+  e.preventDefault();
+  const s=$('senha').value.trim();
+  if(!s){mensagem($('msgEntrar'),'erro','Digite a senha.');return;}
+  entrar(s,false);
+});
+$('btSair').addEventListener('click',()=>{
+  apagar(CHAVE_SENHA); banco=null;
+  $('painel').classList.add('oculto'); $('btSair').classList.add('oculto'); $('blocoEntrar').classList.remove('oculto');
+  $('lembrar').checked=false; limparMensagem($('msgEntrar')); $('senha').focus();
+});
+
+/* ============================================================
+   Escolher turma, simulado e área (abas)
+   ============================================================ */
+function escolhaSalva(){return ler(CHAVE_ESCOLHA,{});}
+function salvarEscolha(){gravar(CHAVE_ESCOLHA,{turma:$('selTurma').value,simulado:$('selSimulado').value,area:areaAtual});}
+
+function montarTurmas(){
+  const sel=$('selTurma'); sel.replaceChildren();
+  const codigos=[...new Set(Object.values(banco.tabelas).map(t=>t.turma))];
+  const series=[...new Set(codigos.map(serieDoCodigo))].sort();
+  for(const s of series){
+    const grupo=el('optgroup',{label:s?`${s}ª série`:'Outras'});
+    codigos.filter(c=>serieDoCodigo(c)===s).sort((a,b)=>nomeTurma(a).localeCompare(nomeTurma(b),'pt-BR'))
+      .forEach(c=>grupo.append(el('option',{value:c},nomeTurma(c))));
+    sel.append(grupo);
+  }
+  const salva=escolhaSalva();
+  if(salva.turma && codigos.includes(salva.turma)) sel.value=salva.turma;
+  montarSimulados();
+}
+function montarSimulados(){
+  const turma=$('selTurma').value, sel=$('selSimulado'); sel.replaceChildren();
+  const ids=new Set(Object.values(banco.tabelas).filter(t=>t.turma===turma).map(t=>t.simulado));
+  const sims=[...ids].map(id=>banco.simulados[id]).filter(Boolean).sort(ordenarSimuladosRecentes);
+  for(const s of sims) sel.append(el('option',{value:s.id},tituloSimulado(s)));
+  const salva=escolhaSalva();
+  if(salva.simulado && ids.has(salva.simulado)) sel.value=salva.simulado;
+  montarAbas();
+}
+function montarAbas(){
+  const turma=$('selTurma').value, sim=$('selSimulado').value, box=$('abas'); box.replaceChildren();
+  const areas=Object.values(banco.tabelas).filter(t=>t.turma===turma&&t.simulado===sim).map(t=>t.area).sort((a,b)=>ordemArea(a)-ordemArea(b));
+  const salva=escolhaSalva();
+  areaAtual=areas.includes(areaAtual)?areaAtual:(areas.includes(salva.area)?salva.area:areas[0]||'');
+  areas.forEach(a=>{
+    const b=el('button',{type:'button',role:'tab','aria-selected':String(a===areaAtual),style:`background:${infoArea(a).cor}`},a);
+    b.addEventListener('click',()=>{areaAtual=a;salvarEscolha();montarAbas();});
+    box.append(b);
+  });
+  $('folha').style.setProperty('--cor-aba',infoArea(areaAtual).cor);
+  salvarEscolha(); desenharResultado();
+}
+$('selTurma').addEventListener('change',()=>{salvarEscolha();montarSimulados();});
+$('selSimulado').addEventListener('change',()=>{salvarEscolha();montarAbas();});
+
+/* ============================================================
+   A lista da turma
+   ============================================================ */
+function tabelaAtual(){return banco.tabelas[chaveTabela($('selSimulado').value,$('selTurma').value,areaAtual)];}
+function alunosOrdenados(tab){
+  const a=tab.alunos.map(x=>({...x,qual:qualDe(tab,x.nome)})).map(x=>({...x,final:notaFinal(x.nota,x.qual)}));
+  if(ordem==='nota') a.sort((x,y)=>y.final-x.final||x.nome.localeCompare(y.nome,'pt-BR'));
+  else a.sort((x,y)=>x.nome.localeCompare(y.nome,'pt-BR'));
+  return a;
+}
+function desenharResultado(){
+  const tab=tabelaAtual(), lista=$('lista');
+  lista.replaceChildren(); limparMensagem($('msgResultado'));
+  $('tituloTurma').textContent=nomeTurma($('selTurma').value||'');
+  if(!tab){
+    $('subtitulo').textContent=''; $('lancar').classList.add('oculto'); $('resumo').textContent='';
+    lista.append(el('p',{class:'sem-dados'},'Não há notas para essa escolha.'));
+    return;
+  }
+  const sim=banco.simulados[tab.simulado];
+  $('subtitulo').textContent=`${tab.area}, ${tituloSimulado(sim)}`;
+  const lancar=$('lancar');
+  if(sim.valePara){lancar.replaceChildren('Lançar no iSEduc como ',el('b',{},sim.valePara));lancar.classList.remove('oculto');}
+  else lancar.classList.add('oculto');
+  const media=tab.alunos.reduce((s,a)=>s+a.nota,0)/tab.alunos.length;
+  $('resumo').replaceChildren(el('b',{},`${tab.alunos.length} alunos`),' fizeram a prova, média do simulado ',el('b',{},fmtNota(Math.round(media*10)/10)),'. Quem faltou não aparece na lista.');
+
+  lista.append(el('div',{class:'linha cab','aria-hidden':'true'},
+    el('span',{class:'n'},'Nº'),el('span',{},'Aluno'),el('span',{class:'nota'},'Simulado'),el('span',{class:'ac'},'Acertos'),
+    el('span',{style:'text-align:center'},'Qualitativo'),el('span',{class:'final'},'Nota final')));
+  alunosOrdenados(tab).forEach((a,i)=>{
+    const chave=chaveQual(tab,a.nome);
+    const finalEl=el('span',{class:'final '+corNota(a.final),'aria-label':`Nota final de ${a.nome}`},fmtNota(a.final));
+    const inp=el('input',{type:'text',inputmode:'decimal',autocomplete:'off',maxlength:'5',
+      value:a.qual==null?'':fmtNota(a.qual).replace(/,0$/,''),'aria-label':`Qualitativo de ${a.nome}, de 0 a 10`,placeholder:'–'});
+    inp.addEventListener('input',()=>{
+      const r=lerQualitativo(inp.value);
+      inp.classList.toggle('invalida',!!r.erro);
+      if(r.erro){mensagem($('msgResultado'),'erro','O qualitativo é uma nota de 0 a 10, como 7 ou 7,5.');return;}
+      limparMensagem($('msgResultado'));
+      if(r.vazio) delete qualitativos[chave]; else qualitativos[chave]=r.valor;
+      const f=notaFinal(a.nota,r.vazio?null:r.valor);
+      finalEl.textContent=fmtNota(f); finalEl.className='final '+corNota(f);
+      if(!gravar(CHAVE_QUAL,qualitativos)) mensagem($('msgResultado'),'erro','Este aparelho não está guardando o qualitativo (janela anônima?). Baixe a planilha antes de sair.');
+    });
+    lista.append(el('div',{class:'linha',role:'listitem'},
+      el('span',{class:'n'},i+1),
+      el('span',{class:'aluno'},a.nome),
+      el('span',{class:'nota'},el('span',{class:'rotulo'},'Simulado '),el('span',{class:corNota(a.nota)},fmtNota(a.nota))),
+      el('span',{class:'ac'},`${a.acertos}/${a.total}`),
+      el('span',{class:'qual'},el('span',{class:'rotulo'},'Qualitativo'),inp),
+      finalEl));
+  });
+}
+function mudarOrdem(nova){
+  ordem=nova;
+  $('ordNome').setAttribute('aria-pressed',String(nova==='nome'));
+  $('ordNota').setAttribute('aria-pressed',String(nova==='nota'));
+  desenharResultado();
+}
+$('ordNome').addEventListener('click',()=>mudarOrdem('nome'));
+$('ordNota').addEventListener('click',()=>mudarOrdem('nota'));
+
+/* ============================================================
+   Planilha do Excel
+   ============================================================ */
+function nomeArquivo(t){return semAcento(t).replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');}
+$('btExcel').addEventListener('click',()=>{
+  const tab=tabelaAtual(); if(!tab) return;
+  if(typeof XLSX==='undefined'){mensagem($('msgResultado'),'erro','A planilha não carregou. Confira a internet e recarregue a página.');return;}
+  const sim=banco.simulados[tab.simulado];
+  const linhas=[
+    [nomeTurma(tab.turma)],
+    [`${tab.area}, ${tituloSimulado(sim)}`+(sim.valePara?`. Lançar no iSEduc como ${sim.valePara}`:'')],
+    [],
+    ['Nº','Aluno','Simulado','Acertos','Qualitativo','Nota final']
+  ];
+  alunosOrdenados(tab).forEach((a,i)=>linhas.push([i+1,a.nome,a.nota,`${a.acertos}/${a.total}`,a.qual==null?'':a.qual,a.final]));
+  const ws=XLSX.utils.aoa_to_sheet(linhas);
+  ws['!cols']=[{wch:5},{wch:42},{wch:9},{wch:9},{wch:11},{wch:11}];
+  for(let r=4;r<linhas.length;r++) for(const c of [2,4,5]){const cel=ws[XLSX.utils.encode_cell({r,c})];if(cel&&cel.t==='n')cel.z='0.0';}
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Notas');
+  XLSX.writeFile(wb,`notas-${nomeArquivo(nomeTurma(tab.turma))}-${nomeArquivo(tab.area)}-${sim.numero}o-simulado-dia${sim.dia}.xlsx`);
+});
+
+/* ============================================================
+   Cópia das notas de qualitativo
+   ============================================================ */
+$('btExportar').addEventListener('click',()=>{
+  const n=Object.keys(qualitativos).length;
+  if(!n){mensagem($('msgCopia'),'info','Ainda não há notas de qualitativo neste aparelho.');return;}
+  const texto=JSON.stringify({formato:'notas-simulados-qualitativos',versao:2,exportadoEm:new Date().toISOString(),itens:qualitativos},null,1);
+  const url=URL.createObjectURL(new Blob([texto],{type:'application/json'}));
+  const a=el('a',{href:url,download:`qualitativos-${new Date().toISOString().slice(0,10)}.json`});
+  document.body.append(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+  mensagem($('msgCopia'),'ok',`Cópia baixada com ${n} nota(s) de qualitativo. Guarde o arquivo num lugar seguro.`);
+});
+$('btImportar').addEventListener('click',()=>$('arqCopia').click());
+$('arqCopia').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  let dados;
+  try{dados=JSON.parse(await f.text());}catch(err){dados=null;}
+  if(!dados||dados.formato!=='notas-simulados-qualitativos'||typeof dados.itens!=='object'){
+    mensagem($('msgCopia'),'erro','Esse arquivo não é uma cópia das notas de qualitativo.');return;
+  }
+  let novos=0, mantidos=0;
+  for(const[k,v] of Object.entries(dados.itens)){
+    if(typeof v!=='number'||v<0||v>10) continue;
+    if(typeof qualitativos[k]!=='number'){qualitativos[k]=v;novos++;}
+    else if(qualitativos[k]!==v) mantidos++;
+  }
+  gravar(CHAVE_QUAL,qualitativos);
+  if(banco) desenharResultado();
+  let texto=`${novos} nota(s) de qualitativo trazida(s).`;
+  if(mantidos) texto+=` ${mantidos} já estava(m) diferente(s) neste aparelho e ficaram como estavam.`;
+  mensagem($('msgCopia'),'ok',texto);
+});
+
+/* ============================================================
+   Ao abrir a página
+   ============================================================ */
+const senhaGuardada=ler(CHAVE_SENHA,null);
+if(senhaGuardada){$('lembrar').checked=true;entrar(senhaGuardada,true);}
+else $('senha').focus();
+</script>
+</body>
+</html>
