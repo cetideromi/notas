@@ -123,7 +123,7 @@ table.grade td button{
 }
 table.grade td button:focus-visible{outline:3px solid var(--foco);outline-offset:-3px}
 table.grade td.vazia{background:var(--vermelho-claro);color:var(--vermelho);font-size:14px;padding:9px 10px;font-weight:700}
-table.grade tr.diferente th.turma::after{content:" contagens diferentes";font-size:12px;color:var(--ambar);font-weight:700;display:block}
+table.grade th.turma .falta-pdf{display:block;font-size:13px;color:var(--ambar);font-weight:700;white-space:normal;max-width:30ch}
 table.grade td.selecionada{background:var(--verde-claro)}
 table.grade td.selecionada button{color:var(--verde)}
 
@@ -214,7 +214,7 @@ dialog.caixa button.perigo{background:var(--vermelho);color:var(--papel)}
 <!-- BANCO -->
 <section class="bloco">
   <h2>O que está no banco</h2>
-  <p class="ajuda">Cada número é a quantidade de alunos daquela turma na área. Clique para ver a lista. Turmas com números diferentes entre áreas do mesmo dia podem estar com um PDF faltando.</p>
+  <p class="ajuda">Cada número é a quantidade de alunos daquela turma na área. Clique para ver a lista. As áreas do mesmo dia são a mesma prova, então o número de alunos deveria ser igual; quando não é, a turma mostra quantos alunos faltam e em qual área.</p>
   <div id="banco"></div>
 </section>
 
@@ -607,8 +607,14 @@ function desenharBanco(comNomes=true){
     for(const tu of turmas){
       const contagens=areas.map(a=>{const t=banco.tabelas[chaveTabela(s.id,tu,a)];return t?t.alunos.length:0;});
       const preenchidas=contagens.filter(n=>n>0);
-      const diferente=preenchidas.length>1 && new Set(preenchidas).size>1;
-      const tr=el('tr',{class:diferente?'diferente':''},el('th',{class:'turma',scope:'row'},nomeTurma(tu),el('span',{class:'cod'},tu)));
+      // As áreas do mesmo dia são a mesma prova: o número de alunos deveria ser igual.
+      // Quando uma tem menos, quase sempre falta o PDF de um dos grupos.
+      const maior=Math.max(0,...preenchidas);
+      const avisos=preenchidas.length>1?areas.map((a,i)=>contagens[i]>0&&contagens[i]<maior
+        ?`${a} com ${maior-contagens[i]} aluno(s) a menos: pode faltar um PDF`:null).filter(Boolean):[];
+      const th=el('th',{class:'turma',scope:'row'},nomeTurma(tu),el('span',{class:'cod'},tu));
+      for(const av of avisos) th.append(el('span',{class:'falta-pdf'},av));
+      const tr=el('tr',{},th);
       areas.forEach((a,i)=>{
         const chave=chaveTabela(s.id,tu,a);
         if(!contagens[i]) tr.append(el('td',{class:'vazia'},'falta'));
