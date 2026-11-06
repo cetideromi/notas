@@ -75,7 +75,9 @@ h2.turma{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
 .lancar b{background:linear-gradient(100deg,transparent 2%,var(--amarelo) 4%,var(--amarelo) 95%,transparent 97%);padding:1px 6px;color:#1E2021}
 .resumo{margin:8px 0 0;color:var(--suave)}
 .resumo b{color:var(--tinta)}
-.explica{margin:6px 0 0;color:var(--suave);font-size:15px;max-width:70ch}
+.linha.ausente .aluno{color:var(--suave)}
+.linha .naofez{grid-column:3/6;text-align:right;color:var(--suave);font-style:italic}
+.linha.ausente .final{color:var(--suave);font-weight:400}
 .ferramentas{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:20px 0 10px}
 .ordem{display:inline-flex}
 .ordem button{border-radius:0}
@@ -112,6 +114,8 @@ h2.turma{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
   .linha .qual{grid-column:2/4;grid-row:3;display:flex;align-items:center;gap:10px;margin-top:4px}
   .linha .qual input{width:6rem}
   .rotulo{display:inline;font-size:15px;color:var(--suave)}
+  .linha .naofez{grid-column:2/4;grid-row:2;text-align:left;font-size:15px}
+  .linha.ausente .final::before{content:""}
 }
 .legenda{margin:10px 0 0;font-size:14px;color:var(--suave)}
 .sem-dados{color:var(--suave);margin:14px 0 0}
@@ -150,7 +154,6 @@ h2.turma{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
     <p class="sub" id="subtitulo"></p>
     <p class="lancar oculto" id="lancar"></p>
     <p class="resumo" id="resumo"></p>
-    <p class="explica">O qualitativo é opcional, de 0 a 10. Com ele, a nota final é a média entre o simulado e o qualitativo. Sem ele, a nota final é a do simulado.</p>
 
     <div class="ferramentas">
       <div class="ordem" role="group" aria-label="Ordem da lista">
@@ -346,11 +349,24 @@ $('selSimulado').addEventListener('change',()=>{salvarEscolha();montarAbas();});
    A lista da turma
    ============================================================ */
 function tabelaAtual(){return banco.tabelas[chaveTabela($('selSimulado').value,$('selTurma').value,areaAtual)];}
+// O PDF da SEDUC só traz quem fez a prova. Para saber quem faltou, a turma é montada com
+// todos os nomes que aparecem nela em qualquer área ou simulado do mesmo ano.
+function ausentesDe(tab){
+  const ano=banco.simulados[tab.simulado].ano;
+  const presentes=new Set(tab.alunos.map(a=>a.nome));
+  const turma=new Set();
+  for(const t of Object.values(banco.tabelas)){
+    const s=banco.simulados[t.simulado];
+    if(t.turma===tab.turma && s && s.ano===ano) t.alunos.forEach(a=>turma.add(a.nome));
+  }
+  return [...turma].filter(n=>!presentes.has(n));
+}
 function alunosOrdenados(tab){
   const a=tab.alunos.map(x=>({...x,qual:qualDe(tab,x.nome)})).map(x=>({...x,final:notaFinal(x.nota,x.qual)}));
-  if(ordem==='nota') a.sort((x,y)=>y.final-x.final||x.nome.localeCompare(y.nome,'pt-BR'));
-  else a.sort((x,y)=>x.nome.localeCompare(y.nome,'pt-BR'));
-  return a;
+  const faltaram=ausentesDe(tab).map(nome=>({nome,ausente:true}));
+  const porNome=(x,y)=>x.nome.localeCompare(y.nome,'pt-BR');
+  if(ordem==='nota') return [...a.sort((x,y)=>y.final-x.final||porNome(x,y)),...faltaram.sort(porNome)];
+  return [...a,...faltaram].sort(porNome);
 }
 function desenharResultado(){
   const tab=tabelaAtual(), lista=$('lista');
@@ -367,12 +383,23 @@ function desenharResultado(){
   if(sim.valePara){lancar.replaceChildren('Lançar no iSEduc como ',el('b',{},sim.valePara));lancar.classList.remove('oculto');}
   else lancar.classList.add('oculto');
   const media=tab.alunos.reduce((s,a)=>s+a.nota,0)/tab.alunos.length;
-  $('resumo').replaceChildren(el('b',{},`${tab.alunos.length} alunos`),' fizeram a prova, média do simulado ',el('b',{},fmtNota(Math.round(media*10)/10)),'. Quem faltou não aparece na lista.');
+  const nFaltaram=ausentesDe(tab).length;
+  $('resumo').replaceChildren(el('b',{},`${tab.alunos.length} alunos`),' fizeram a prova',
+    nFaltaram?`, ${nFaltaram} não ${nFaltaram===1?'fez':'fizeram'}`:'',
+    '. Média do simulado: ',el('b',{},fmtNota(Math.round(media*10)/10)),'.');
 
   lista.append(el('div',{class:'linha cab','aria-hidden':'true'},
     el('span',{class:'n'},'Nº'),el('span',{},'Aluno'),el('span',{class:'nota'},'Simulado'),el('span',{class:'ac'},'Acertos'),
     el('span',{style:'text-align:center'},'Qualitativo'),el('span',{class:'final'},'Nota final')));
   alunosOrdenados(tab).forEach((a,i)=>{
+    if(a.ausente){
+      lista.append(el('div',{class:'linha ausente',role:'listitem'},
+        el('span',{class:'n'},i+1),
+        el('span',{class:'aluno'},a.nome),
+        el('span',{class:'naofez'},'Não fez a prova'),
+        el('span',{class:'final','aria-label':`${a.nome} não fez a prova`},'–')));
+      return;
+    }
     const chave=chaveQual(tab,a.nome);
     const finalEl=el('span',{class:'final '+corNota(a.final),'aria-label':`Nota final de ${a.nome}`},fmtNota(a.final));
     const inp=el('input',{type:'text',inputmode:'decimal',autocomplete:'off',maxlength:'5',
@@ -419,7 +446,9 @@ $('btExcel').addEventListener('click',()=>{
     [],
     ['Nº','Aluno','Simulado','Acertos','Qualitativo','Nota final']
   ];
-  alunosOrdenados(tab).forEach((a,i)=>linhas.push([i+1,a.nome,a.nota,`${a.acertos}/${a.total}`,a.qual==null?'':a.qual,a.final]));
+  alunosOrdenados(tab).forEach((a,i)=>linhas.push(a.ausente
+    ?[i+1,a.nome,'Não fez a prova','','','']
+    :[i+1,a.nome,a.nota,`${a.acertos}/${a.total}`,a.qual==null?'':a.qual,a.final]));
   const ws=XLSX.utils.aoa_to_sheet(linhas);
   ws['!cols']=[{wch:5},{wch:42},{wch:9},{wch:9},{wch:11},{wch:11}];
   for(let r=4;r<linhas.length;r++) for(const c of [2,4,5]){const cel=ws[XLSX.utils.encode_cell({r,c})];if(cel&&cel.t==='n')cel.z='0.0';}
