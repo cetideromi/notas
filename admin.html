@@ -68,6 +68,9 @@ input[type=password],input[type=text],input[type=number]{
   border:1px solid var(--linha);border-radius:6px;padding:10px 12px;width:100%;max-width:320px;
 }
 input[type=number]{max-width:120px}
+.com-botao{display:flex;gap:8px;align-items:center;max-width:440px}
+.com-botao input{max-width:none;flex:1;min-width:0}
+input.oculta{-webkit-text-security:disc}
 button{
   font:inherit;font-weight:700;cursor:pointer;border-radius:6px;padding:10px 16px;
   border:1px solid var(--verde);background:var(--verde);color:var(--papel);
@@ -171,10 +174,13 @@ dialog.caixa button.perigo{background:var(--vermelho);color:var(--papel)}
 <!-- ACESSO -->
 <section class="bloco" id="blocoAcesso">
   <h2>Abrir os dados</h2>
-  <p class="ajuda">Digite a senha dos professores. Ela é usada para abrir e para trancar o arquivo de notas.</p>
+  <p class="ajuda">Digite a senha dos professores. É a mesma senha que eles usam para ver as notas: ela abre e tranca o arquivo de notas. Ela aparece na tela para evitar erro de digitação.</p>
   <div class="campo">
-    <label for="senha">Senha</label>
-    <input type="password" id="senha" autocomplete="current-password">
+    <label for="senha">Senha dos professores</label>
+    <div class="com-botao">
+      <input type="text" id="senha" name="senha-professores-notas" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button type="button" class="secundario pequeno mostrar" data-alvo="senha">Ocultar</button>
+    </div>
   </div>
   <div class="acoes">
     <button id="btAbrirSite">Abrir dados do site</button>
@@ -228,14 +234,14 @@ dialog.caixa button.perigo{background:var(--vermelho);color:var(--papel)}
 <!-- SALVAR -->
 <section class="bloco">
   <h2>Publicar para os professores</h2>
-  <p class="ajuda">Nada vai para o site até você baixar o arquivo e enviá-lo ao GitHub.</p>
+  <p class="ajuda">Nada vai para o site até você baixar o arquivo e enviá-lo ao GitHub. O sistema tem uma senha só: se você trocar a senha aqui, a nova passa a valer para os professores e também para abrir esta página.</p>
   <div class="campo">
-    <label for="novaSenha">Trocar a senha (opcional)</label>
-    <input type="password" id="novaSenha" autocomplete="new-password" placeholder="Deixe vazio para manter a atual">
+    <label for="novaSenha">Trocar a senha dos professores (opcional)</label>
+    <input type="text" id="novaSenha" name="nova-senha-notas" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Deixe vazio para manter a atual">
   </div>
   <div class="campo">
     <label for="novaSenha2">Repita a nova senha</label>
-    <input type="password" id="novaSenha2" autocomplete="new-password">
+    <input type="text" id="novaSenha2" name="nova-senha-notas-2" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
   </div>
   <div class="acoes">
     <button id="btBaixar">Baixar dados.enc</button>
@@ -440,8 +446,18 @@ function abrirBanco(b){
   $('ano').value=new Date().getFullYear();
   desenharBanco();
 }
+// A senha é sempre comparada na mesma forma: sem espaços nas pontas e com acentos "montados" do mesmo jeito.
+function limparSenha(v){return v.normalize('NFC').trim();}
+document.querySelectorAll('button.mostrar').forEach(b=>b.addEventListener('click',()=>{
+  const campo=$(b.dataset.alvo);
+  const ocultar=!campo.classList.contains('oculta');
+  if(ocultar && !CSS.supports('-webkit-text-security','disc')) campo.type='password';
+  else campo.type='text';
+  campo.classList.toggle('oculta',ocultar);
+  b.textContent=ocultar?'Mostrar':'Ocultar';
+}));
 function lerSenha(){
-  const s=$('senha').value.trim();
+  const s=limparSenha($('senha').value);
   if(!s){mensagem($('msgAcesso'),'erro','Digite a senha primeiro.');return null;}
   return s;
 }
@@ -660,7 +676,7 @@ async function excluirSimulado(id){
 
 /* ---------- Salvar ---------- */
 $('btBaixar').addEventListener('click',async()=>{
-  const n1=$('novaSenha').value.trim(), n2=$('novaSenha2').value.trim();
+  const n1=limparSenha($('novaSenha').value), n2=limparSenha($('novaSenha2').value);
   let senha=senhaAtual;
   if(n1||n2){
     if(n1!==n2){mensagem($('msgSalvar'),'erro','As duas novas senhas não são iguais.');return;}
@@ -672,13 +688,16 @@ $('btBaixar').addEventListener('click',async()=>{
   try{
     banco.atualizadoEm=new Date().toISOString();
     const texto=await cifrar(banco,senha);
+    // Confere, antes de baixar, que o arquivo abre com a senha que vai ser mostrada.
+    const teste=await decifrar(texto,senha);
+    if(Object.keys(teste.tabelas).length!==Object.keys(banco.tabelas).length) throw new Error('o teste do arquivo falhou.');
     const url=URL.createObjectURL(new Blob([texto],{type:'application/octet-stream'}));
     const a=document.createElement('a'); a.href=url; a.download='dados.enc'; document.body.append(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),2000);
     const trocou=senha!==senhaAtual;
     senhaAtual=senha; $('senha').value=senha; $('novaSenha').value=''; $('novaSenha2').value='';
     marcarPendente(false);
-    mensagem($('msgSalvar'),'ok',trocou?'Arquivo baixado com a nova senha. Avise os professores.':'Arquivo baixado. Agora envie ao GitHub seguindo os passos abaixo.');
+    mensagem($('msgSalvar'),'ok',`Arquivo baixado e testado. Ele abre com a senha: ${senha}  (anote antes de enviar).`+(trocou?' A senha mudou: avise os professores.':' Agora envie ao GitHub seguindo os passos abaixo.'));
   }catch(e){mensagem($('msgSalvar'),'erro','Não foi possível gerar o arquivo: '+e.message);}
 });
 </script>
