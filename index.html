@@ -349,17 +349,44 @@ $('selSimulado').addEventListener('change',()=>{salvarEscolha();montarAbas();});
    A lista da turma
    ============================================================ */
 function tabelaAtual(){return banco.tabelas[chaveTabela($('selSimulado').value,$('selTurma').value,areaAtual)];}
-// O PDF da SEDUC só traz quem fez a prova. Para saber quem faltou, a turma é montada com
-// todos os nomes que aparecem nela em qualquer área ou simulado do mesmo ano.
-function ausentesDe(tab){
-  const ano=banco.simulados[tab.simulado].ano;
-  const presentes=new Set(tab.alunos.map(a=>a.nome));
-  const turma=new Set();
-  for(const t of Object.values(banco.tabelas)){
-    const s=banco.simulados[t.simulado];
-    if(t.turma===tab.turma && s && s.ano===ano) t.alunos.forEach(a=>turma.add(a.nome));
+// O PDF da SEDUC só traz quem fez a prova. Para saber quem faltou, usa a lista completa da
+// turma (vinda do iSEduc) quando a coordenação trouxe; senão, junta todos os nomes que
+// aparecem na turma em qualquer área ou simulado do mesmo ano.
+function chaveNome(n){return semAcento(n).toUpperCase().replace(/\s+/g,' ').trim();}
+function distancia(a,b){
+  let ant=Array.from({length:b.length+1},(_,j)=>j);
+  for(let i=1;i<=a.length;i++){
+    const at=[i];
+    for(let j=1;j<=b.length;j++) at[j]=Math.min(ant[j]+1,at[j-1]+1,ant[j-1]+(a[i-1]===b[j-1]?0:1));
+    ant=at;
   }
-  return [...turma].filter(n=>!presentes.has(n));
+  return ant[b.length];
+}
+// Mesmo aluno escrito com uma ou duas letras diferentes entre a SEDUC e o iSEduc.
+function mesmoAluno(a,b){
+  if(a===b) return true;
+  if(a.split(' ').length!==b.split(' ').length) return false;
+  return 1-distancia(a,b)/Math.max(a.length,b.length)>=0.9;
+}
+function ausentesDe(tab){
+  const presentes=tab.alunos.map(a=>chaveNome(a.nome));
+  const completa=banco.turmasCompletas&&banco.turmasCompletas[tab.turma];
+  let turma;
+  if(completa&&completa.alunos&&completa.alunos.length) turma=completa.alunos;
+  else{
+    const ano=banco.simulados[tab.simulado].ano; turma=[];
+    for(const t of Object.values(banco.tabelas)){
+      const s=banco.simulados[t.simulado];
+      if(t.turma===tab.turma && s && s.ano===ano) t.alunos.forEach(a=>turma.push(a.nome));
+    }
+  }
+  const vistos=new Set(), faltaram=[];
+  for(const nome of turma){
+    const k=chaveNome(nome);
+    if(vistos.has(k)) continue; vistos.add(k);
+    if(!presentes.some(p=>mesmoAluno(p,k))) faltaram.push(nome);
+  }
+  return faltaram;
 }
 function alunosOrdenados(tab){
   const a=tab.alunos.map(x=>({...x,qual:qualDe(tab,x.nome)})).map(x=>({...x,final:notaFinal(x.nota,x.qual)}));

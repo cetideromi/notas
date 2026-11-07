@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Notas dos simulados, direção</title>
+<title>Notas dos simulados, coordenação</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,261 +12,370 @@
 <script src="lib/pdf.min.js"></script>
 <style>
 :root{
-  /* Mesmo visual da tela dos professores ("Fichário"). --verde é a cor das ações. */
-  --fundo:#F3F3F1;
-  --papel:#FFFFFF;
-  --tinta:#1E2021;
-  --tinta-suave:#5F6366;
-  --linha:#DADBD8;
-  --verde:#1E2021;
-  --verde-claro:#ECECE9;
-  --ambar:#8A5A00;
-  --ambar-claro:#FFF1C2;
-  --vermelho:#C0262D;
-  --vermelho-claro:#FBE3E4;
-  --foco:#1E2021;
+  --fundo:#F3F3F1; --papel:#FFFFFF; --tinta:#1E2021; --suave:#5F6366; --linha:#DADBD8; --campo:#B9BBB7;
+  --ambar:#8A5A00; --ambar-claro:#FFF1C2; --vermelho:#C0262D; --vermelho-claro:#FBE3E4; --ok:#1E6B3A; --ok-claro:#E3F2E8;
+  --amarelo:#FFE45C;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --fundo:#161717;
-    --papel:#1F2121;
-    --tinta:#ECEDEB;
-    --tinta-suave:#A3A7A9;
-    --linha:#353838;
-    --verde:#ECEDEB;
-    --verde-claro:#2B2E2E;
-    --ambar:#F2C460;
-    --ambar-claro:#3A3018;
-    --vermelho:#FF8C8C;
-    --vermelho-claro:#3D2224;
-    --foco:#ECEDEB;
+    --fundo:#161717; --papel:#1F2121; --tinta:#ECEDEB; --suave:#A3A7A9; --linha:#353838; --campo:#555958;
+    --ambar:#F2C460; --ambar-claro:#3A3018; --vermelho:#FF8C8C; --vermelho-claro:#3D2224; --ok:#8FD6A8; --ok-claro:#1E3326;
     color-scheme:dark;
   }
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{
-  background:var(--fundo);
-  color:var(--tinta);
-  font-family:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  font-size:16px;
-  line-height:1.5;
+body{background:var(--fundo);color:var(--tinta);font:16px/1.5 "Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.pagina{max-width:900px;margin:0 auto;padding:22px 16px 110px}
+.topo{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:20px}
+.topo h1{margin:0;font-size:22px;font-weight:800}
+.topo p{margin:0;color:var(--suave);font-size:15px}
+.tela{background:var(--papel);border:1px solid var(--linha);border-radius:4px;padding:24px}
+@media (max-width:640px){.tela{padding:16px}}
+.etapa{margin:0 0 4px;font-size:15px;font-weight:700;color:var(--suave)}
+.tela h2{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.01em}
+.tela h3{margin:22px 0 6px;font-size:18px}
+.ajuda{margin:0 0 16px;color:var(--suave);max-width:68ch}
+label{display:block;font-size:15px;font-weight:700;margin-bottom:4px}
+input[type=text],input[type=password],input[type=number]{
+  font:inherit;color:var(--tinta);background:var(--papel);border:1px solid var(--campo);border-radius:4px;
+  padding:10px 12px;width:100%;max-width:420px;min-height:44px;
 }
-.pagina{max-width:980px;margin:0 auto;padding:28px 18px 80px}
-header.topo{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
-header.topo h1{font-size:30px;line-height:1.15;margin:0;font-weight:800;letter-spacing:-.01em}
-header.topo p{margin:4px 0 0;color:var(--tinta-suave)}
-.selo{font-size:14px;padding:6px 12px;border-radius:999px;background:var(--ambar-claro);color:var(--ambar);font-weight:700;display:none}
-.selo.visivel{display:inline-block}
-section.bloco{background:var(--papel);border:1px solid var(--linha);border-radius:4px;padding:22px;margin-bottom:20px}
-section.bloco h2{font-size:21px;margin:0 0 4px}
-section.bloco > p.ajuda{margin:0 0 16px;color:var(--tinta-suave);max-width:68ch}
-label{display:block;font-weight:700;margin-bottom:6px}
-input[type=password],input[type=text],input[type=number]{
-  font:inherit;color:var(--tinta);background:var(--fundo);
-  border:1px solid var(--linha);border-radius:6px;padding:10px 12px;width:100%;max-width:320px;
-}
-input[type=number]{max-width:120px}
-.com-botao{display:flex;gap:8px;align-items:center;max-width:440px}
-.com-botao input{max-width:none;flex:1;min-width:0}
 input.oculta{-webkit-text-security:disc}
-button{
-  font:inherit;font-weight:700;cursor:pointer;border-radius:6px;padding:10px 16px;
-  border:1px solid var(--verde);background:var(--verde);color:var(--papel);
-}
-button.secundario{background:transparent;color:var(--verde)}
-button.perigo{background:transparent;color:var(--vermelho);border-color:var(--vermelho)}
-button.pequeno{padding:5px 10px;font-size:14px}
-button:disabled{opacity:.5;cursor:not-allowed}
-:focus-visible{outline:3px solid var(--foco);outline-offset:2px}
-.acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.campo{margin-bottom:14px}
-.mensagem{margin-top:14px;padding:10px 14px;border-radius:6px;display:none}
-.mensagem.ok{display:block;background:var(--verde-claro);color:var(--verde)}
+.campo{margin-bottom:16px}
+.com-botao{display:flex;gap:8px;align-items:center;max-width:520px}
+.com-botao input{max-width:none;flex:1;min-width:0}
+button{font:inherit;font-weight:700;font-size:16px;cursor:pointer;border-radius:4px;padding:10px 18px;min-height:44px;
+  border:1px solid var(--tinta);background:var(--tinta);color:var(--papel)}
+button.sec{background:var(--papel);color:var(--tinta)}
+button.perigo{background:var(--papel);color:var(--vermelho);border-color:var(--vermelho)}
+button.pequeno{font-size:14px;padding:6px 12px;min-height:36px}
+button.grande{font-size:18px;padding:14px 22px}
+button.link{background:none;border:0;color:var(--suave);text-decoration:underline;padding:8px 0;font-weight:500;font-size:15px}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--tinta);outline-offset:2px}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:20px}
+.acoes.fim{justify-content:space-between}
+.mensagem{margin-top:14px;padding:10px 14px;border-radius:4px;display:none;max-width:70ch}
+.mensagem.ok{display:block;background:var(--ok-claro);color:var(--ok)}
 .mensagem.erro{display:block;background:var(--vermelho-claro);color:var(--vermelho)}
-.mensagem.info{display:block;background:var(--fundo);color:var(--tinta-suave)}
+.mensagem.info{display:block;color:var(--suave);padding-left:0}
 .oculto{display:none !important}
 
-.soltar{
-  border:2px dashed var(--linha);border-radius:10px;padding:34px 18px;text-align:center;
-  color:var(--tinta-suave);cursor:pointer;margin-top:14px;
-}
-.soltar.ativo{border-color:var(--verde);background:var(--verde-claro);color:var(--verde)}
-.soltar strong{color:var(--tinta);display:block;font-size:18px;margin-bottom:4px}
+/* Início */
+.resumo-site{margin:0 0 18px;color:var(--suave)}
+.resumo-site b{color:var(--tinta)}
+.opcoes{margin-top:30px;border-top:1px solid var(--linha);padding-top:16px}
+.opcoes h3{margin:0 0 10px;font-size:16px;color:var(--suave)}
+.opcoes .lista-opcoes{display:flex;flex-wrap:wrap;gap:8px}
 
+/* Passo 1: PDFs */
+.soltar{border:2px dashed var(--campo);border-radius:6px;padding:40px 18px;text-align:center;color:var(--suave);cursor:pointer}
+.soltar.ativo{border-color:var(--tinta);background:var(--fundo);color:var(--tinta)}
+.soltar strong{color:var(--tinta);display:block;font-size:19px;margin-bottom:4px}
 ul.arquivos{list-style:none;margin:16px 0 0;padding:0}
 ul.arquivos li{padding:10px 0;border-top:1px solid var(--linha);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-ul.arquivos .nomearq{font-size:14px;color:var(--tinta-suave);word-break:break-all}
+ul.arquivos .nomearq{font-size:14px;color:var(--suave);word-break:break-all}
 ul.arquivos .desc{font-weight:700}
 ul.arquivos .detalhe{font-size:14px;color:var(--vermelho);margin-top:2px}
-.etiquetas{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
 .etq{font-size:13px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.etq.verde{background:var(--verde-claro);color:var(--verde)}
+.etq.ok{background:var(--ok-claro);color:var(--ok)}
 .etq.ambar{background:var(--ambar-claro);color:var(--ambar)}
 .etq.vermelho{background:var(--vermelho-claro);color:var(--vermelho)}
-.etq.neutra{background:var(--fundo);color:var(--tinta-suave)}
+.etq.neutra{background:var(--fundo);color:var(--suave)}
+.conflitos{margin-top:18px;border:1px solid var(--ambar);border-radius:4px;padding:14px}
+.conflitos h3{margin:0 0 4px;font-size:17px}
+.conflito{border-top:1px solid var(--linha);padding:10px 0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.conflito:first-of-type{border-top:0}
+.conflito .onde{font-size:14px;color:var(--suave)}
+.ano{font-size:14px;color:var(--suave);margin-top:10px}
+.ano input{width:5.5em;min-height:32px;padding:4px 8px;display:inline-block}
 
-.conflito{border-top:1px solid var(--linha);padding:12px 0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
-.conflito .onde{font-size:14px;color:var(--tinta-suave)}
-
-.simulado{border-top:1px solid var(--linha);padding-top:18px;margin-top:18px}
-.simulado:first-of-type{border-top:none;margin-top:0;padding-top:0}
-.simulado-cab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-.simulado-cab h3{margin:0;font-size:19px}
-.simulado-cab .resumo{color:var(--tinta-suave);font-size:14px}
+/* Grade (passo 2 e "ver notas") */
+.simulado{border-top:1px solid var(--linha);padding-top:16px;margin-top:16px}
+.simulado:first-child{border-top:0;margin-top:0;padding-top:0}
+.simulado-cab{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.simulado-cab h4{margin:0;font-size:18px}
+.simulado-cab .resumo{color:var(--suave);font-size:14px}
 .rolagem{overflow-x:auto}
 table.grade{border-collapse:collapse;min-width:100%}
 table.grade th,table.grade td{border:1px solid var(--linha);padding:0;text-align:center}
-table.grade th{font-size:14px;padding:8px 10px;color:var(--tinta-suave);font-weight:700;background:var(--fundo)}
-table.grade th.turma{text-align:left;color:var(--tinta);background:var(--papel);white-space:nowrap}
-table.grade td button{
-  all:unset;cursor:pointer;display:block;width:100%;padding:9px 10px;font-weight:700;
-  font-variant-numeric:tabular-nums;box-sizing:border-box;
-}
-table.grade td button:focus-visible{outline:3px solid var(--foco);outline-offset:-3px}
-table.grade td.vazia{background:var(--vermelho-claro);color:var(--vermelho);font-size:14px;padding:9px 10px;font-weight:700}
-table.grade th.turma .falta-pdf{display:block;font-size:13px;color:var(--ambar);font-weight:700;white-space:normal;max-width:30ch}
-table.grade td.selecionada{background:var(--verde-claro)}
-table.grade td.selecionada button{color:var(--verde)}
-
-.detalhe-lista{margin-top:12px;background:var(--fundo);border-radius:8px;padding:14px}
-.detalhe-lista h4{margin:0 0 8px;font-size:16px}
+table.grade th{font-size:14px;padding:8px 10px;color:var(--suave);font-weight:700;background:var(--fundo)}
+table.grade th.turma{text-align:left;color:var(--tinta);background:var(--papel)}
+table.grade td button{all:unset;cursor:pointer;display:block;width:100%;padding:9px 10px;font-weight:700;font-variant-numeric:tabular-nums;box-sizing:border-box}
+table.grade td span{display:block;padding:9px 10px;font-weight:700}
+table.grade td.vazia{background:var(--vermelho-claro);color:var(--vermelho);font-size:14px;font-weight:700}
+table.grade th.turma .falta-pdf{display:block;font-size:13px;color:var(--ambar);font-weight:700;max-width:34ch}
+table.grade td.selecionada{background:var(--fundo)}
+.cod{display:block;font-size:12px;color:var(--suave);font-weight:400}
+.detalhe-lista{margin-top:12px;background:var(--fundo);border-radius:4px;padding:14px}
+.detalhe-lista h5{margin:0 0 8px;font-size:16px}
 .detalhe-lista table{border-collapse:collapse;width:100%;font-size:14px}
 .detalhe-lista td,.detalhe-lista th{padding:5px 8px;border-bottom:1px solid var(--linha);text-align:left}
 .detalhe-lista td.num,.detalhe-lista th.num{text-align:right;font-variant-numeric:tabular-nums}
-.vazio-banco{color:var(--tinta-suave);margin:0}
-.cod{display:block;font-size:12px;color:var(--tinta-suave);font-weight:400}
-.vale{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
-.vale label{margin:0;font-size:15px}
-.vale input{max-width:200px;padding:6px 10px}
-table.nomes{border-collapse:collapse;width:100%;max-width:620px}
-table.nomes th,table.nomes td{border-bottom:1px solid var(--linha);padding:6px 8px;text-align:left}
-table.nomes th{font-size:14px;color:var(--tinta-suave)}
-table.nomes td.codigo{font-weight:700;white-space:nowrap;width:1%}
-table.nomes input{max-width:none;padding:6px 10px}
+.tudo-certo{background:var(--ok-claro);color:var(--ok);padding:10px 14px;border-radius:4px;margin:0 0 16px;font-weight:600}
+.atencao{background:var(--ambar-claro);color:var(--ambar);padding:10px 14px;border-radius:4px;margin:0 0 16px;font-weight:600}
 
-ol.passos{margin:12px 0 0;padding-left:22px;max-width:68ch}
+/* Passo 3: vale para */
+.vale{display:grid;grid-template-columns:minmax(0,1fr) 12rem;gap:8px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--linha)}
+.vale:first-of-type{border-top:0}
+.vale input{max-width:none}
+@media (max-width:640px){.vale{grid-template-columns:minmax(0,1fr)}}
+
+/* Publicado */
+.publicado{font-size:18px}
+.publicado a{color:var(--tinta);font-weight:700;word-break:break-all}
+
+/* Opções */
+table.nomes{border-collapse:collapse;width:100%;max-width:640px}
+table.nomes th,table.nomes td{border-bottom:1px solid var(--linha);padding:6px 8px;text-align:left}
+table.nomes th{font-size:14px;color:var(--suave)}
+table.nomes td.codigo{font-weight:700;white-space:nowrap;width:1%}
+table.nomes input{max-width:none;min-height:38px;padding:6px 10px}
+ol.passos{margin:0 0 16px;padding-left:22px;max-width:70ch}
 ol.passos li{margin-bottom:6px}
 code{font-size:.92em;background:var(--fundo);padding:1px 6px;border-radius:4px}
-dialog.caixa{
-  background:var(--papel);color:var(--tinta);border:1px solid var(--linha);border-radius:10px;
-  padding:22px;max-width:min(440px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25);
-}
-dialog.caixa::backdrop{background:rgba(10,20,16,.45)}
-dialog.caixa p{margin:0 0 4px;max-width:60ch}
+
+/* Barra de mudanças não publicadas */
+.barra{position:fixed;left:0;right:0;bottom:0;background:var(--tinta);color:var(--papel);padding:12px 16px}
+.barra div{max-width:900px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.barra button{background:var(--amarelo);color:#1E2021;border-color:var(--amarelo)}
+
+dialog.caixa{background:var(--papel);color:var(--tinta);border:1px solid var(--linha);border-radius:6px;padding:22px;
+  max-width:min(460px,calc(100vw - 32px));box-shadow:0 12px 40px rgba(0,0,0,.25)}
+dialog.caixa::backdrop{background:rgba(10,12,12,.5)}
+dialog.caixa p{margin:0}
 dialog.caixa .acoes{justify-content:flex-end;margin-top:18px}
-dialog.caixa button.perigo{background:var(--vermelho);color:var(--papel)}
-@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+dialog.caixa button.perigo{background:var(--vermelho);color:#fff}
 </style>
 </head>
 <body>
 <div class="pagina">
 
 <header class="topo">
-  <div>
-    <h1>Notas dos simulados</h1>
-    <p>Área da direção, CETI Antonio Deromi Soares</p>
-  </div>
-  <span class="selo" id="seloPendente">Alterações não baixadas</span>
+  <div><h1>Notas dos simulados</h1><p>Coordenação, CETI Antonio Deromi Soares</p></div>
+  <button class="link oculto" id="btSair">Sair</button>
 </header>
 
-<!-- ACESSO -->
-<section class="bloco" id="blocoAcesso">
-  <h2>Abrir os dados</h2>
-  <p class="ajuda">Digite a senha dos professores. É a mesma senha que eles usam para ver as notas: ela abre e tranca o arquivo de notas. Ela aparece na tela para evitar erro de digitação.</p>
-  <div class="campo">
-    <label for="senha">Senha dos professores</label>
+<!-- ENTRAR -->
+<section class="tela" id="telaEntrar">
+  <h2>Entrar</h2>
+  <p class="ajuda">Digite a senha da coordenação. Ela aparece na tela para evitar erro de digitação.</p>
+  <form id="formEntrar">
+    <label for="senhaCoord">Senha da coordenação</label>
     <div class="com-botao">
-      <input type="text" id="senha" name="senha-professores-notas" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <button type="button" class="secundario pequeno mostrar" data-alvo="senha">Ocultar</button>
+      <input type="text" id="senhaCoord" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button type="button" class="sec pequeno mostrar" data-alvo="senhaCoord">Ocultar</button>
+    </div>
+    <div class="acoes"><button type="submit" id="btEntrar">Entrar</button></div>
+  </form>
+  <div class="mensagem" id="msgEntrar"></div>
+  <p style="margin-top:28px"><button class="link" id="btIrConfig">Configuração do site (feita uma vez, por quem cuida do site)</button></p>
+</section>
+
+<!-- CONFIGURAÇÃO -->
+<section class="tela oculto" id="telaConfig">
+  <h2>Configuração do site</h2>
+  <p class="ajuda">Feita uma vez só, por quem cuida do site. Depois a coordenação usa apenas a senha dela. Refazer só se for trocar o código do GitHub (por exemplo, quando ele vencer).</p>
+
+  <h3>1. Senha dos professores</h3>
+  <p class="ajuda">É a senha que os professores usam para ver as notas. Se o site já tem notas, digite a senha atual delas.</p>
+  <div class="com-botao campo">
+    <input type="text" id="cfgSenhaProf" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Senha dos professores">
+    <button type="button" class="sec pequeno mostrar" data-alvo="cfgSenhaProf">Ocultar</button>
+  </div>
+
+  <h3>2. Senha da coordenação</h3>
+  <p class="ajuda">Uma senha diferente da dos professores. É com ela que a coordenação entra nesta página e publica as notas.</p>
+  <div class="com-botao campo">
+    <input type="text" id="cfgSenhaCoord" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Senha da coordenação">
+    <button type="button" class="sec pequeno mostrar" data-alvo="cfgSenhaCoord">Ocultar</button>
+  </div>
+
+  <h3>3. Código de acesso do GitHub</h3>
+  <p class="ajuda">Ele deixa esta página salvar as notas no site sozinha. Para criar:</p>
+  <ol class="passos">
+    <li>Entre no GitHub com a conta do site e abra <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</li>
+    <li>Em <b>Token name</b>, escreva: site das notas.</li>
+    <li>Em <b>Expiration</b>, escolha o prazo mais longo que aparecer.</li>
+    <li>Em <b>Repository access</b>, escolha <b>Only select repositories</b> e marque o repositório do site (<span id="cfgRepoNome">notas</span>).</li>
+    <li>Em <b>Permissions</b>, abra <b>Repository permissions</b> e mude <b>Contents</b> para <b>Read and write</b>.</li>
+    <li>Clique em <b>Generate token</b>, copie o código (começa com <code>github_pat_</code>) e cole abaixo.</li>
+  </ol>
+  <div class="com-botao campo">
+    <input type="password" id="cfgToken" autocomplete="off" spellcheck="false" aria-label="Código de acesso do GitHub">
+    <button type="button" class="sec pequeno mostrar-senha" data-alvo="cfgToken">Mostrar</button>
+  </div>
+
+  <div class="acoes fim">
+    <button class="sec" id="btConfigVoltar">Voltar</button>
+    <button id="btConfigSalvar">Testar e salvar</button>
+  </div>
+  <div class="mensagem" id="msgConfig"></div>
+</section>
+
+<!-- INÍCIO -->
+<section class="tela oculto" id="telaInicio">
+  <h2>O que você quer fazer?</h2>
+  <p class="resumo-site" id="resumoSite"></p>
+  <button class="grande" id="btAdicionar">Adicionar notas de um simulado</button>
+  <div class="opcoes">
+    <h3>Outras opções</h3>
+    <div class="lista-opcoes">
+      <button class="sec pequeno" data-ir="telaVer">Ver as notas publicadas</button>
+      <button class="sec pequeno" data-ir="telaTurmas">Lista completa das turmas</button>
+      <button class="sec pequeno" data-ir="telaNomes">Nomes das turmas</button>
+      <button class="sec pequeno" data-ir="telaSenhaProf">Trocar a senha dos professores</button>
+      <button class="sec pequeno" data-ir="telaSenhaCoord">Trocar a senha da coordenação</button>
     </div>
   </div>
-  <div class="acoes">
-    <button id="btAbrirSite">Abrir dados do site</button>
-    <button class="secundario" id="btAbrirArquivo">Abrir dados.enc do computador</button>
-    <button class="secundario" id="btComecar">Começar do zero</button>
-    <input type="file" id="arqDados" accept=".enc,application/json" class="oculto">
-  </div>
-  <div class="mensagem" id="msgAcesso"></div>
 </section>
 
-<div id="areaTrabalho" class="oculto">
-
-<!-- IMPORTAR -->
-<section class="bloco">
-  <h2>Adicionar PDFs</h2>
-  <p class="ajuda">Pode soltar vários de uma vez. Listas repetidas são ignoradas e listas da mesma turma e área (como inglês e espanhol) são somadas.</p>
-  <div class="campo">
-    <label for="ano">Ano dos simulados</label>
-    <input type="number" id="ano" min="2020" max="2100">
-  </div>
+<!-- PASSO 1 -->
+<section class="tela oculto" id="telaPdfs">
+  <p class="etapa">Passo 1 de 3</p>
+  <h2>Solte os PDFs do simulado</h2>
+  <p class="ajuda">São os arquivos "lista-alunos" baixados do sistema da SEDUC. Pode soltar todos de uma vez, de várias turmas e áreas.</p>
   <div class="soltar" id="zonaSoltar" tabindex="0" role="button" aria-label="Escolher PDFs">
-    <strong>Solte os PDFs aqui</strong>
-    ou clique para escolher
+    <strong>Solte os PDFs aqui</strong>ou clique para escolher
   </div>
   <input type="file" id="arqPdfs" accept="application/pdf,.pdf" multiple class="oculto">
+  <p class="ano">Ano dos simulados: <input type="number" id="ano" min="2020" max="2100" aria-label="Ano dos simulados"></p>
   <div class="mensagem" id="msgPdfs"></div>
   <ul class="arquivos" id="listaArquivos"></ul>
+  <div class="conflitos oculto" id="blocoConflitos">
+    <h3>O mesmo aluno veio com notas diferentes</h3>
+    <p class="ajuda" style="margin-bottom:6px">Escolha qual nota vale em cada caso, ou resolva todos de uma vez.</p>
+    <div class="acoes" style="margin:0 0 10px">
+      <button class="sec pequeno" id="btTodasNovas">Usar todas as notas novas</button>
+      <button class="sec pequeno" id="btTodasAntigas">Manter todas as que já estavam</button>
+    </div>
+    <div id="listaConflitos"></div>
+  </div>
+  <div class="acoes fim">
+    <button class="sec" id="btPdfsVoltar">Cancelar</button>
+    <button id="btPdfsContinuar" disabled>Continuar</button>
+  </div>
+  <p class="mensagem info" id="dicaContinuar" style="text-align:right;max-width:none"></p>
 </section>
 
-<!-- CONFLITOS -->
-<section class="bloco oculto" id="blocoConflitos">
-  <h2>Notas diferentes para o mesmo aluno</h2>
-  <p class="ajuda">O mesmo aluno apareceu com outra nota na mesma turma, área e simulado. Escolha qual vale.</p>
-  <div id="listaConflitos"></div>
+<!-- PASSO 2 -->
+<section class="tela oculto" id="telaConferir">
+  <p class="etapa">Passo 2 de 3</p>
+  <h2>Confira se veio tudo</h2>
+  <p class="ajuda">Cada número é a quantidade de alunos daquela turma na área. As áreas do mesmo dia são a mesma prova, então os números deveriam ser iguais.</p>
+  <div id="avisoConferir"></div>
+  <div id="gradeConferir"></div>
+  <div class="acoes fim">
+    <button class="sec" id="btConferirVoltar">Voltar e soltar mais PDFs</button>
+    <button id="btConferirContinuar">Continuar</button>
+  </div>
 </section>
 
-<!-- BANCO -->
-<section class="bloco">
-  <h2>O que está no banco</h2>
-  <p class="ajuda">Cada número é a quantidade de alunos daquela turma na área. Clique para ver a lista. As áreas do mesmo dia são a mesma prova, então o número de alunos deveria ser igual; quando não é, a turma mostra quantos alunos faltam e em qual área.</p>
-  <div id="banco"></div>
+<!-- PASSO 3 -->
+<section class="tela oculto" id="telaVale">
+  <p class="etapa">Passo 3 de 3</p>
+  <h2>Para qual nota do iSEduc vale?</h2>
+  <p class="ajuda">Os professores veem isso em destaque, por exemplo "Lançar no iSEduc como NM2". Pode deixar em branco se ainda não souber.</p>
+  <div id="listaVale"></div>
+  <div class="acoes fim">
+    <button class="sec" id="btValeVoltar">Voltar</button>
+    <button id="btPublicar">Publicar para os professores</button>
+  </div>
+  <div class="mensagem" id="msgPublicar"></div>
+</section>
+
+<!-- PUBLICADO -->
+<section class="tela oculto" id="telaPublicado">
+  <h2>Pronto, publicado</h2>
+  <p class="publicado">Em cerca de um minuto os professores já veem as notas em<br><a id="linkProfessores" target="_blank" rel="noopener"></a></p>
+  <div class="acoes"><button id="btPublicadoInicio">Voltar ao início</button></div>
+</section>
+
+<!-- VER NOTAS -->
+<section class="tela oculto" id="telaVer">
+  <h2>Notas publicadas</h2>
+  <p class="ajuda">Clique num número para ver a lista de alunos.</p>
+  <div id="gradeVer"></div>
+  <div class="acoes"><button class="sec" data-ir="telaInicio">Voltar ao início</button></div>
+</section>
+
+<!-- TURMAS COMPLETAS -->
+<section class="tela oculto" id="telaTurmas">
+  <h2>Lista completa das turmas</h2>
+  <p class="ajuda">O PDF da SEDUC só traz quem fez a prova. Com a lista completa, os professores veem também quem não fez. O arquivo <code>turmas-completas.json</code> é gerado pelo robô do iSEduc.</p>
+  <div id="resumoTurmas"></div>
+  <div class="acoes">
+    <button id="btTrazerTurmas">Trazer o arquivo turmas-completas.json</button>
+    <input type="file" id="arqTurmas" accept=".json,application/json" class="oculto">
+  </div>
+  <div class="mensagem" id="msgTurmas"></div>
+  <div class="acoes"><button class="sec" data-ir="telaInicio">Voltar ao início</button></div>
 </section>
 
 <!-- NOMES DAS TURMAS -->
-<section class="bloco">
+<section class="tela oculto" id="telaNomes">
   <h2>Nomes das turmas</h2>
-  <p class="ajuda">É o nome que os professores veem no lugar do código. Turma nova ganha um nome sozinha quando o curso é conhecido; confira e corrija aqui se precisar.</p>
+  <p class="ajuda">É o nome que os professores veem no lugar do código. Turma nova ganha um nome sozinha quando o curso é conhecido.</p>
   <div id="nomes"></div>
+  <div class="acoes"><button class="sec" data-ir="telaInicio">Voltar ao início</button></div>
 </section>
 
-<!-- SALVAR -->
-<section class="bloco">
-  <h2>Publicar para os professores</h2>
-  <p class="ajuda">Nada vai para o site até você baixar o arquivo e enviá-lo ao GitHub. O sistema tem uma senha só: se você trocar a senha aqui, a nova passa a valer para os professores e também para abrir esta página.</p>
-  <div class="campo">
-    <label for="novaSenha">Trocar a senha dos professores (opcional)</label>
-    <input type="text" id="novaSenha" name="nova-senha-notas" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Deixe vazio para manter a atual">
+<!-- SENHA DOS PROFESSORES -->
+<section class="tela oculto" id="telaSenhaProf">
+  <h2>Trocar a senha dos professores</h2>
+  <p class="ajuda">A senha nova passa a valer na hora em que for salva. Depois, avise os professores.</p>
+  <label for="novaSenhaProf">Senha nova dos professores</label>
+  <div class="com-botao campo">
+    <input type="text" id="novaSenhaProf" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <button type="button" class="sec pequeno mostrar" data-alvo="novaSenhaProf">Ocultar</button>
   </div>
-  <div class="campo">
-    <label for="novaSenha2">Repita a nova senha</label>
-    <input type="text" id="novaSenha2" name="nova-senha-notas-2" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <div class="acoes fim">
+    <button class="sec" data-ir="telaInicio">Cancelar</button>
+    <button id="btSalvarSenhaProf">Salvar a senha nova</button>
   </div>
-  <div class="acoes">
-    <button id="btBaixar">Baixar dados.enc</button>
+  <div class="mensagem" id="msgSenhaProf"></div>
+</section>
+
+<!-- SENHA DA COORDENAÇÃO -->
+<section class="tela oculto" id="telaSenhaCoord">
+  <h2>Trocar a senha da coordenação</h2>
+  <p class="ajuda">A senha nova passa a valer na hora em que for salva.</p>
+  <label for="novaSenhaCoord">Senha nova da coordenação</label>
+  <div class="com-botao campo">
+    <input type="text" id="novaSenhaCoord" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <button type="button" class="sec pequeno mostrar" data-alvo="novaSenhaCoord">Ocultar</button>
   </div>
-  <div class="mensagem" id="msgSalvar"></div>
-  <ol class="passos">
-    <li>Abra o repositório do sistema no GitHub.</li>
-    <li>Clique em <strong>Add file</strong> e depois em <strong>Upload files</strong>.</li>
-    <li>Arraste o <code>dados.enc</code> que acabou de baixar. Ele substitui o antigo.</li>
-    <li>Clique em <strong>Commit changes</strong>. Em cerca de um minuto os professores já veem as novas notas.</li>
-  </ol>
+  <div class="acoes fim">
+    <button class="sec" data-ir="telaInicio">Cancelar</button>
+    <button id="btSalvarSenhaCoord">Salvar a senha nova</button>
+  </div>
+  <div class="mensagem" id="msgSenhaCoord"></div>
 </section>
 
 </div>
+
+<div class="barra oculto" id="barra">
+  <div><span>Há mudanças que ainda não estão no site.</span><button id="btPublicarBarra">Publicar agora</button></div>
 </div>
 
 <dialog class="caixa" id="caixa">
   <p id="caixaTexto"></p>
-  <div class="acoes">
-    <button class="secundario" id="caixaNao">Cancelar</button>
-    <button id="caixaSim">Continuar</button>
-  </div>
+  <div class="acoes"><button class="sec" id="caixaNao">Cancelar</button><button id="caixaSim">Continuar</button></div>
 </dialog>
 
 <script>
+/* ============================================================
+   Onde o site está no GitHub (ex.: cetideromi.github.io/notas -> cetideromi/notas)
+   ============================================================ */
+const REPO=(()=>{
+  const q=new URLSearchParams(location.search).get('repo'); if(q) return q;
+  const m=location.hostname.match(/^([^.]+)\.github\.io$/i), pasta=location.pathname.split('/').filter(Boolean)[0];
+  return m&&pasta&&!pasta.endsWith('.html')?`${m[1]}/${pasta}`:'cetideromi/notas';
+})();
+const ENDERECO_PROFESSORES=new URL('./',location.href).href.replace(/\?.*$/,'');
+
 /* ============================================================
    Leitura dos PDFs
    ============================================================ */
@@ -282,7 +391,7 @@ function agruparLinhas(itens){
   linhas.sort((a,b)=>b.y-a.y);
   return linhas.map(l=>l.partes.sort((a,b)=>a.x-b.x).map(p=>p.s.trim()).join(' ').replace(/\s+/g,' ').trim());
 }
-function semAcento(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function semAcento(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'');}
 const ORDEM_AREAS=['Linguagens','Ciências Humanas','Ciências da Natureza','Matemática'];
 // Código da SEDUC: curso + série + turma + I (ex.: MK3AI = Marketing, 3ª série, turma A).
 const CURSOS={DS:'Desenvolvimento de Sistemas',MK:'Marketing',LO:'Logística',GR:'Agropecuária',AO:'Alimentos',GT:'Guia de Turismo'};
@@ -305,7 +414,7 @@ function interpretarLinhas(linhas){
   const r={erros:[],alunos:[],avisos:[]};
   const cab=linhas.find(l=>/SIMULADO/i.test(l));
   const m=cab && cab.match(/(\d+)\s*[ºª°o]?\s*SIMULADO\s+(.*?)\s*\+?\s*(\d+)\s*[ºª°a]?\s*S[ÉE]RIE\s*-?\s*(\d+)\s*[ºª°o]?\s*DIA/i);
-  if(!m){r.erros.push('Cabeçalho do simulado não reconhecido.');return r;}
+  if(!m){r.erros.push('Não parece um PDF "lista-alunos" de simulado.');return r;}
   r.numero=+m[1]; r.tipo=((m[2]||'').trim()||'ENEM').toUpperCase(); r.serie=+m[3]; r.dia=+m[4];
   const lt=linhas.find(l=>/^Turma\s*:/i.test(l));
   const ld=linhas.find(l=>/^Disciplina\s*:/i.test(l));
@@ -347,22 +456,20 @@ async function lerPdf(arquivo){
 }
 
 /* ============================================================
-   Banco de dados (em memória)
+   Banco de notas (em memória)
    ============================================================ */
-function bancoVazio(){return {formato:'notas-simulados',versao:1,atualizadoEm:null,simulados:{},tabelas:{},nomesTurmas:{}};}
+function bancoVazio(){return {formato:'notas-simulados',versao:1,atualizadoEm:null,simulados:{},tabelas:{},nomesTurmas:{},turmasCompletas:{}};}
 function idSimulado(ano,r){return `${ano}-${r.tipo}-${r.serie}S-${r.numero}-D${r.dia}`;}
 function chaveTabela(sim,turma,area){return `${sim}|${turma}|${area}`;}
-function tituloSimulado(s){return `${s.numero}º Simulado ${s.tipo}, ${s.serie}ª série, ${s.dia}º dia`;}
-
-// Junta uma lista lida ao banco. Retorna o que aconteceu.
-function juntarLista(banco,ano,r){
+function tituloSimulado(s){return `${s.numero}º simulado ${s.tipo}, ${s.serie}ª série, ${s.dia}º dia (${s.ano})`;}
+function juntarLista(ano,r){
   const sim=idSimulado(ano,r);
   if(!banco.simulados[sim]) banco.simulados[sim]={id:sim,ano,tipo:r.tipo,numero:r.numero,serie:r.serie,dia:r.dia,valePara:''};
   if(!banco.nomesTurmas[r.turma]) banco.nomesTurmas[r.turma]=nomeAutomatico(r.turma);
   const chave=chaveTabela(sim,r.turma,r.area);
   if(!banco.tabelas[chave]) banco.tabelas[chave]={simulado:sim,turma:r.turma,area:r.area,alunos:[]};
   const tab=banco.tabelas[chave];
-  const res={chave,novos:0,iguais:0,conflitos:[]};
+  const res={sim,chave,novos:0,iguais:0,conflitos:[]};
   for(const a of r.alunos){
     const existente=tab.alunos.find(x=>x.nome===a.nome);
     if(!existente){tab.alunos.push({...a});res.novos++;}
@@ -373,12 +480,13 @@ function juntarLista(banco,ano,r){
 }
 
 /* ============================================================
-   Criptografia (AES-GCM com chave derivada da senha)
+   Trancar e destrancar (AES-GCM com chave tirada da senha)
    ============================================================ */
 const ITERACOES=300000;
-// O arquivo de notas fica numa pasta pública: senha curta pode ser descoberta por tentativa.
+// Os arquivos ficam numa pasta pública: senha curta pode ser descoberta por tentativa.
 const SENHA_MINIMA=12;
 const AVISO_SENHA=`A senha precisa ter pelo menos ${SENHA_MINIMA} letras. Uma frase curta funciona bem, como "simulado do deromi em novembro".`;
+function limparSenha(v){return v.normalize('NFC').trim();}
 function paraB64(bytes){let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(s);}
 function deB64(b64){const s=atob(b64);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
 async function derivarChave(senha,sal,iteracoes){
@@ -386,44 +494,64 @@ async function derivarChave(senha,sal,iteracoes){
   return crypto.subtle.deriveKey({name:'PBKDF2',salt:sal,iterations:iteracoes,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
 async function cifrar(obj,senha){
-  const sal=crypto.getRandomValues(new Uint8Array(16));
-  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const sal=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
   const chave=await derivarChave(senha,sal,ITERACOES);
   const ct=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},chave,new TextEncoder().encode(JSON.stringify(obj))));
   return JSON.stringify({formato:'notas-simulados-cifrado',versao:1,kdf:'PBKDF2-SHA256',iteracoes:ITERACOES,sal:paraB64(sal),iv:paraB64(iv),dados:paraB64(ct)});
 }
 async function decifrar(texto,senha){
   let env;
-  try{env=JSON.parse(texto);}catch(e){throw new Error('O arquivo não é um dados.enc válido.');}
-  if(env.formato!=='notas-simulados-cifrado') throw new Error('O arquivo não é um dados.enc válido.');
+  try{env=JSON.parse(texto);}catch(e){throw new Error('O arquivo está com defeito.');}
+  if(env.formato!=='notas-simulados-cifrado') throw new Error('O arquivo está com defeito.');
   const chave=await derivarChave(senha,deB64(env.sal),env.iteracoes);
   let claro;
   try{claro=await crypto.subtle.decrypt({name:'AES-GCM',iv:deB64(env.iv)},chave,deB64(env.dados));}
-  catch(e){throw new Error('Senha incorreta.');}
+  catch(e){const erro=new Error('Senha incorreta.');erro.senhaErrada=true;throw erro;}
   return JSON.parse(new TextDecoder().decode(claro));
 }
 
 /* ============================================================
-   Interface
+   GitHub: ler e salvar arquivos do site com o código de acesso
+   ============================================================ */
+const API='https://api.github.com';
+function cabecalhos(token,extra={}){return {Authorization:`Bearer ${token}`,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...extra};}
+function erroGitHub(status){
+  if(status===401) return new Error('O código de acesso do GitHub não vale mais (venceu ou foi apagado). Quem cuida do site precisa criar outro em "Configuração do site".');
+  if(status===403||status===404) return new Error('O código de acesso do GitHub não tem permissão para salvar no site. Quem cuida do site precisa conferir a "Configuração do site".');
+  return new Error(`O GitHub não respondeu (erro ${status}). Tente de novo em alguns minutos.`);
+}
+async function lerArquivoGitHub(token,nome){
+  let r;
+  try{r=await fetch(`${API}/repos/${REPO}/contents/${nome}?ref=main&t=${Date.now()}`,{headers:cabecalhos(token,{Accept:'application/vnd.github.raw+json'}),cache:'no-store'});}
+  catch(e){throw new Error('Sem conexão com o GitHub. Confira a internet e tente de novo.');}
+  if(r.status===404) return null;
+  if(!r.ok) throw erroGitHub(r.status);
+  return r.text();
+}
+async function salvarArquivoGitHub(token,nome,texto,mensagemCommit){
+  let sha, r;
+  try{r=await fetch(`${API}/repos/${REPO}/contents/${nome}?ref=main&t=${Date.now()}`,{headers:cabecalhos(token),cache:'no-store'});}
+  catch(e){throw new Error('Sem conexão com o GitHub. Confira a internet e tente de novo.');}
+  if(r.ok) sha=(await r.json()).sha; else if(r.status!==404) throw erroGitHub(r.status);
+  try{r=await fetch(`${API}/repos/${REPO}/contents/${nome}`,{method:'PUT',headers:cabecalhos(token,{'Content-Type':'application/json'}),
+    body:JSON.stringify({message:mensagemCommit,content:btoa(texto),branch:'main',...(sha?{sha}:{})})});}
+  catch(e){throw new Error('Sem conexão com o GitHub. Confira a internet e tente de novo.');}
+  if(!r.ok) throw erroGitHub(r.status);
+}
+// Arquivo público do site, antes de ter o código de acesso.
+async function lerArquivoDoSite(nome){
+  let r;
+  try{r=await fetch(`${nome}?t=${Date.now()}`,{cache:'no-store'});}catch(e){throw new Error('Sem conexão. Confira a internet e tente de novo.');}
+  if(r.status===404) return null;
+  if(!r.ok) throw new Error(`O site respondeu com erro ${r.status}. Tente de novo em alguns minutos.`);
+  return r.text();
+}
+
+/* ============================================================
+   Estado e utilidades da tela
    ============================================================ */
 const $=id=>document.getElementById(id);
-let banco=null, senhaAtual='', conflitos=[], pendente=false, celulaAberta=null;
-
-function mensagem(el,tipo,texto){el.className='mensagem '+tipo;el.textContent=texto;}
-// Pergunta "tem certeza?" dentro da página, sem a janela do navegador.
-function perguntar(texto,rotuloSim='Continuar',perigo=false){
-  return new Promise(resolve=>{
-    const d=$('caixa'), sim=$('caixaSim'), nao=$('caixaNao');
-    $('caixaTexto').textContent=texto;
-    sim.textContent=rotuloSim; sim.className=perigo?'perigo':'';
-    const fim=v=>{d.close();resolve(v);};
-    sim.onclick=()=>fim(true); nao.onclick=()=>fim(false);
-    d.oncancel=e=>{e.preventDefault();fim(false);};
-    d.showModal(); nao.focus();
-  });
-}
-function marcarPendente(v){pendente=v;$('seloPendente').classList.toggle('visivel',v);}
-window.addEventListener('beforeunload',e=>{if(pendente){e.preventDefault();e.returnValue='';}});
+let banco=null, acesso=null, senhaCoordAtual='', pendente=false, conflitos=[], tocados=new Set(), celulaAberta=null;
 function el(tag,attrs={},...filhos){
   const e=document.createElement(tag);
   for(const[k,v] of Object.entries(attrs)){
@@ -434,67 +562,134 @@ function el(tag,attrs={},...filhos){
   for(const f of filhos){if(f==null)continue;e.append(f instanceof Node?f:document.createTextNode(String(f)));}
   return e;
 }
+function mensagem(alvo,tipo,texto){alvo.className='mensagem '+tipo;alvo.textContent=texto;}
+function limpar(alvo){alvo.className='mensagem';alvo.textContent='';}
 function fmtNota(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});}
-
-function abrirBanco(b){
-  banco=b;
-  if(!banco.simulados) banco.simulados={};
-  if(!banco.tabelas) banco.tabelas={};
-  if(!banco.nomesTurmas) banco.nomesTurmas={};
-  for(const t of Object.values(banco.tabelas)) if(!banco.nomesTurmas[t.turma]) banco.nomesTurmas[t.turma]=nomeAutomatico(t.turma);
-  $('areaTrabalho').classList.remove('oculto');
-  $('ano').value=new Date().getFullYear();
-  desenharBanco();
+function fmtData(iso){if(!iso) return '';const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function perguntar(texto,rotuloSim='Continuar',perigo=false){
+  return new Promise(resolve=>{
+    const d=$('caixa'), sim=$('caixaSim'), nao=$('caixaNao');
+    $('caixaTexto').textContent=texto; sim.textContent=rotuloSim; sim.className=perigo?'perigo':'';
+    const fim=v=>{d.close();resolve(v);};
+    sim.onclick=()=>fim(true); nao.onclick=()=>fim(false);
+    d.oncancel=e=>{e.preventDefault();fim(false);};
+    d.showModal(); nao.focus();
+  });
 }
-// A senha é sempre comparada na mesma forma: sem espaços nas pontas e com acentos "montados" do mesmo jeito.
-function limparSenha(v){return v.normalize('NFC').trim();}
-document.querySelectorAll('button.mostrar').forEach(b=>b.addEventListener('click',()=>{
-  const campo=$(b.dataset.alvo);
-  const ocultar=!campo.classList.contains('oculta');
-  if(ocultar && !CSS.supports('-webkit-text-security','disc')) campo.type='password';
-  else campo.type='text';
-  campo.classList.toggle('oculta',ocultar);
-  b.textContent=ocultar?'Mostrar':'Ocultar';
-}));
-function lerSenha(){
-  const s=limparSenha($('senha').value);
-  if(!s){mensagem($('msgAcesso'),'erro','Digite a senha primeiro.');return null;}
-  return s;
+const TELAS=['telaEntrar','telaConfig','telaInicio','telaPdfs','telaConferir','telaVale','telaPublicado','telaVer','telaTurmas','telaNomes','telaSenhaProf','telaSenhaCoord'];
+const COM_BARRA=['telaInicio','telaVer','telaTurmas','telaNomes'];
+let telaAtual='telaEntrar';
+function irPara(id){
+  TELAS.forEach(t=>$(t).classList.toggle('oculto',t!==id));
+  telaAtual=id;
+  if(id==='telaInicio') desenharInicio();
+  if(id==='telaVer'){celulaAberta=null;desenharGrade($('gradeVer'),Object.keys(banco.simulados),true);}
+  if(id==='telaTurmas') desenharTurmas();
+  if(id==='telaNomes') desenharNomes();
+  atualizarBarra();
+  window.scrollTo(0,0);
+  const foco=$(id).querySelector('h2'); if(foco){foco.tabIndex=-1;foco.focus({preventScroll:true});}
 }
-
-$('btAbrirSite').addEventListener('click',async()=>{
-  const s=lerSenha(); if(!s) return;
-  if(location.protocol==='file:'){mensagem($('msgAcesso'),'erro','Aberto direto do computador, a página não consegue buscar o arquivo do site. Use "Abrir dados.enc do computador".');return;}
-  mensagem($('msgAcesso'),'info','Abrindo...');
-  try{
-    const resp=await fetch('dados.enc?t='+Date.now(),{cache:'no-store'});
-    if(resp.status===404){mensagem($('msgAcesso'),'erro','Ainda não existe dados.enc no site. Se é a primeira vez, use "Começar do zero".');return;}
-    if(!resp.ok) throw new Error('O site respondeu com erro '+resp.status+'.');
-    const b=await decifrar(await resp.text(),s);
-    senhaAtual=s; abrirBanco(b);
-    mensagem($('msgAcesso'),'ok',`Dados abertos: ${Object.keys(b.simulados).length} simulado(s).`);
-  }catch(e){mensagem($('msgAcesso'),'erro',e.message);}
-});
-$('btAbrirArquivo').addEventListener('click',()=>{if(lerSenha()) $('arqDados').click();});
-$('arqDados').addEventListener('change',async e=>{
-  const f=e.target.files[0]; e.target.value=''; if(!f) return;
-  const s=lerSenha(); if(!s) return;
-  mensagem($('msgAcesso'),'info','Abrindo...');
-  try{
-    const b=await decifrar(await f.text(),s);
-    senhaAtual=s; abrirBanco(b);
-    mensagem($('msgAcesso'),'ok',`Dados abertos: ${Object.keys(b.simulados).length} simulado(s).`);
-  }catch(err){mensagem($('msgAcesso'),'erro',err.message);}
-});
-$('btComecar').addEventListener('click',async()=>{
-  const s=lerSenha(); if(!s) return;
-  if(s.length<SENHA_MINIMA){mensagem($('msgAcesso'),'erro',AVISO_SENHA);return;}
-  if(banco && !(await perguntar('Começar do zero descarta tudo o que está aberto agora.','Descartar e começar',true))) return;
-  senhaAtual=s; abrirBanco(bancoVazio());
-  mensagem($('msgAcesso'),'ok','Banco vazio criado. Agora adicione os PDFs.');
+function marcarPendente(){pendente=true;atualizarBarra();}
+function atualizarBarra(){$('barra').classList.toggle('oculto',!(pendente&&COM_BARRA.includes(telaAtual)));}
+window.addEventListener('beforeunload',e=>{if(pendente){e.preventDefault();e.returnValue='';}});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-ir]'); if(b) irPara(b.dataset.ir);
+  const m=e.target.closest('button.mostrar');
+  if(m){const c=$(m.dataset.alvo);const ocultar=!c.classList.contains('oculta');
+    c.classList.toggle('oculta',ocultar);
+    if(!CSS.supports('-webkit-text-security','disc')) c.type=ocultar?'password':'text';
+    m.textContent=ocultar?'Mostrar':'Ocultar';}
+  const s=e.target.closest('button.mostrar-senha');
+  if(s){const c=$(s.dataset.alvo);c.type=c.type==='password'?'text':'password';s.textContent=c.type==='password'?'Mostrar':'Ocultar';}
 });
 
-/* ---------- PDFs ---------- */
+/* ============================================================
+   Entrar
+   ============================================================ */
+$('formEntrar').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const msg=$('msgEntrar'), senha=limparSenha($('senhaCoord').value);
+  if(!senha){mensagem(msg,'erro','Digite a senha da coordenação.');return;}
+  $('btEntrar').disabled=true; mensagem(msg,'info','Abrindo...');
+  try{
+    const texto=await lerArquivoDoSite('acesso.enc');
+    if(texto===null){mensagem(msg,'erro','O site ainda não foi configurado. Quem cuida do site precisa fazer a "Configuração do site", logo abaixo.');return;}
+    let a;
+    try{a=await decifrar(texto,senha);}catch(err){mensagem(msg,'erro',err.senhaErrada?'Senha da coordenação incorreta.':err.message);return;}
+    await abrirComAcesso(a,senha);
+    limpar(msg); $('senhaCoord').value=''; $('btSair').classList.remove('oculto');
+    irPara('telaInicio');
+  }catch(err){mensagem(msg,'erro',err.message);}
+  finally{$('btEntrar').disabled=false;}
+});
+async function abrirComAcesso(a,senhaCoord){
+  const texto=await lerArquivoGitHub(a.token,'dados.enc');
+  let b=texto===null?bancoVazio():await decifrar(texto,a.senhaProfessores).catch(()=>{throw new Error('As notas do site estão trancadas com outra senha dos professores. Quem cuida do site precisa refazer a "Configuração do site" com a senha certa.');});
+  b.simulados=b.simulados||{}; b.tabelas=b.tabelas||{}; b.nomesTurmas=b.nomesTurmas||{}; b.turmasCompletas=b.turmasCompletas||{};
+  for(const t of Object.values(b.tabelas)) if(!b.nomesTurmas[t.turma]) b.nomesTurmas[t.turma]=nomeAutomatico(t.turma);
+  banco=b; acesso=a; senhaCoordAtual=senhaCoord; pendente=false;
+}
+$('btSair').addEventListener('click',async()=>{
+  if(pendente && !(await perguntar('Há mudanças que ainda não estão no site. Sair assim mesmo? Elas vão se perder.','Sair sem publicar',true))) return;
+  banco=null; acesso=null; senhaCoordAtual=''; pendente=false;
+  $('btSair').classList.add('oculto'); irPara('telaEntrar');
+});
+
+/* ============================================================
+   Configuração do site (uma vez)
+   ============================================================ */
+$('cfgRepoNome').textContent=REPO.split('/')[1]||'notas';
+$('btIrConfig').addEventListener('click',()=>{limpar($('msgConfig'));irPara('telaConfig');});
+$('btConfigVoltar').addEventListener('click',()=>irPara(acesso?'telaInicio':'telaEntrar'));
+$('btConfigSalvar').addEventListener('click',async()=>{
+  const msg=$('msgConfig');
+  const senhaProf=limparSenha($('cfgSenhaProf').value), senhaCoord=limparSenha($('cfgSenhaCoord').value), token=$('cfgToken').value.trim();
+  if(senhaProf.length<SENHA_MINIMA){mensagem(msg,'erro','Senha dos professores: '+AVISO_SENHA);return;}
+  if(senhaCoord.length<SENHA_MINIMA){mensagem(msg,'erro','Senha da coordenação: '+AVISO_SENHA);return;}
+  if(senhaCoord===senhaProf){mensagem(msg,'erro','A senha da coordenação precisa ser diferente da senha dos professores.');return;}
+  if(!token){mensagem(msg,'erro','Cole o código de acesso do GitHub.');return;}
+  $('btConfigSalvar').disabled=true;
+  try{
+    mensagem(msg,'info','Testando o código de acesso...');
+    let texto;
+    try{texto=await lerArquivoGitHub(token,'dados.enc');}
+    catch(err){mensagem(msg,'erro','O código de acesso não funcionou. Confira se ele foi copiado inteiro, se o repositório do site foi marcado e se "Contents" está em "Read and write".');return;}
+    if(texto!==null){
+      try{await decifrar(texto,senhaProf);}
+      catch(err){mensagem(msg,'erro','A senha dos professores não abre as notas que já estão no site. Digite a senha atual dos professores.');return;}
+    }
+    mensagem(msg,'info','Salvando a configuração no site...');
+    const novo={formato:'notas-simulados-acesso',versao:1,token,senhaProfessores:senhaProf,configuradoEm:new Date().toISOString()};
+    try{await salvarArquivoGitHub(token,'acesso.enc',await cifrar(novo,senhaCoord),'Configuração do acesso da coordenação');}
+    catch(err){mensagem(msg,'erro','O código de acesso consegue ler, mas não consegue salvar. No GitHub, confira se "Contents" está em "Read and write".');return;}
+    await abrirComAcesso(novo,senhaCoord);
+    $('cfgSenhaProf').value=''; $('cfgSenhaCoord').value=''; $('cfgToken').value='';
+    limpar(msg); $('btSair').classList.remove('oculto');
+    irPara('telaInicio');
+    $('resumoSite').prepend(el('span',{class:'tudo-certo',style:'display:block'},'Configuração salva. A partir de agora, a coordenação entra só com a senha da coordenação.'));
+  }catch(err){mensagem(msg,'erro',err.message);}
+  finally{$('btConfigSalvar').disabled=false;}
+});
+
+/* ============================================================
+   Início
+   ============================================================ */
+function desenharInicio(){
+  const box=$('resumoSite'); box.replaceChildren();
+  const n=Object.keys(banco.simulados).length;
+  if(!n) box.append('O site ainda não tem notas.');
+  else box.append('O site tem ',el('b',{},`${n} simulado(s)`),banco.atualizadoEm?`, atualizado em ${fmtData(banco.atualizadoEm)}.`:'.');
+}
+$('btAdicionar').addEventListener('click',()=>{
+  tocados=new Set(); conflitos=[]; $('listaArquivos').replaceChildren(); limpar($('msgPdfs'));
+  $('ano').value=new Date().getFullYear(); desenharConflitos(); atualizarContinuarPdfs();
+  irPara('telaPdfs');
+});
+
+/* ============================================================
+   Passo 1: PDFs
+   ============================================================ */
 const zona=$('zonaSoltar');
 zona.addEventListener('click',()=>$('arqPdfs').click());
 zona.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('arqPdfs').click();}});
@@ -505,12 +700,12 @@ $('arqPdfs').addEventListener('change',e=>{processarPdfs([...e.target.files]);e.
 
 async function processarPdfs(arquivos){
   const pdfs=arquivos.filter(f=>/\.pdf$/i.test(f.name)||f.type==='application/pdf');
-  if(!pdfs.length) return;
-  const ano=parseInt($('ano').value,10);
   const msg=$('msgPdfs');
-  if(!ano||ano<2020||ano>2100){mensagem(msg,'erro','Confira o ano dos simulados.');return;}
-  if(typeof pdfjsLib==='undefined'){mensagem(msg,'erro','O leitor de PDF não carregou. Confira a internet e recarregue a página.');return;}
-  msg.className='mensagem';
+  if(!pdfs.length){mensagem(msg,'erro','Só PDFs. Os arquivos soltos não eram PDF.');return;}
+  const ano=parseInt($('ano').value,10);
+  if(!ano||ano<2020||ano>2100){mensagem(msg,'erro','Confira o ano dos simulados, logo acima.');return;}
+  if(typeof pdfjsLib==='undefined'){mensagem(msg,'erro','O leitor de PDF não carregou. Recarregue a página.');return;}
+  limpar(msg);
   pdfjsLib.GlobalWorkerOptions.workerSrc='lib/pdf.worker.min.js';
   const lista=$('listaArquivos');
   for(const f of pdfs){
@@ -520,186 +715,271 @@ async function processarPdfs(arquivos){
     try{r=await lerPdf(f);}catch(e){r={erros:['Não foi possível abrir o PDF.'],avisos:[],alunos:[]};}
     li.replaceChildren(...linhaArquivo(f.name,r,ano));
   }
-  desenharConflitos(); desenharBanco();
+  desenharConflitos(); atualizarContinuarPdfs();
 }
 function linhaArquivo(nome,r,ano){
-  const esq=el('div',{});
-  const dir=el('div',{class:'etiquetas'});
+  const esq=el('div',{}), dir=el('div',{});
   if(r.erros.length){
     esq.append(el('div',{class:'desc'},'Não foi possível ler'),el('div',{class:'nomearq'},nome));
     for(const e of r.erros) esq.append(el('div',{class:'detalhe'},e));
-    dir.append(el('span',{class:'etq vermelho'},'erro'));
+    dir.append(el('span',{class:'etq vermelho'},'não entrou'));
     return [esq,dir];
   }
-  esq.append(el('div',{class:'desc'},`${r.turma}, ${r.area}`),
-             el('div',{class:'nomearq'},`${r.numero}º Simulado ${r.tipo}, ${r.serie}ª série, ${r.dia}º dia (${ano}) | ${nome}`));
+  esq.append(el('div',{class:'desc'},`${nomeAutomaticoOuSalvo(r.turma)}, ${r.area}`),
+             el('div',{class:'nomearq'},`${r.numero}º simulado, ${r.serie}ª série, ${r.dia}º dia (${ano}). ${nome}`));
   if(r.avisos.length){
     for(const a of r.avisos) esq.append(el('div',{class:'detalhe'},a));
-    dir.append(el('span',{class:'etq ambar'},`${r.avisos.length} aviso(s), lista não adicionada`));
+    dir.append(el('span',{class:'etq ambar'},'não entrou: confira o PDF'));
     return [esq,dir];
   }
-  const res=juntarLista(banco,ano,r);
-  if(res.novos) {dir.append(el('span',{class:'etq verde'},`+${res.novos} aluno(s)`));marcarPendente(true);}
-  if(res.iguais && !res.novos && !res.conflitos.length) dir.append(el('span',{class:'etq neutra'},'repetida, ignorada'));
-  else if(res.iguais) dir.append(el('span',{class:'etq neutra'},`${res.iguais} já existiam`));
+  const res=juntarLista(ano,r);
+  tocados.add(res.sim);
+  if(res.novos){dir.append(el('span',{class:'etq ok'},`+${res.novos} aluno(s)`));marcarPendente();}
+  if(res.iguais && !res.novos && !res.conflitos.length) dir.append(el('span',{class:'etq neutra'},'já estava, ignorado'));
   if(res.conflitos.length){dir.append(el('span',{class:'etq ambar'},`${res.conflitos.length} nota(s) diferente(s)`));conflitos.push(...res.conflitos);}
   return [esq,dir];
 }
-
-/* ---------- Conflitos ---------- */
+function nomeAutomaticoOuSalvo(c){return (banco.nomesTurmas&&banco.nomesTurmas[c])||nomeAutomatico(c);}
 function desenharConflitos(){
   const box=$('listaConflitos'); box.replaceChildren();
   $('blocoConflitos').classList.toggle('oculto',!conflitos.length);
   conflitos.forEach((c,i)=>{
-    const tab=banco.tabelas[c.chave]; const sim=banco.simulados[tab.simulado];
+    const tab=banco.tabelas[c.chave];
     box.append(el('div',{class:'conflito'},
-      el('div',{},el('div',{class:'desc'},c.nome),el('div',{class:'onde'},`${nomeTurma(tab.turma)}, ${tab.area}, ${tituloSimulado(sim)}`)),
+      el('div',{},el('div',{class:'desc'},c.nome),el('div',{class:'onde'},`${nomeTurma(tab.turma)}, ${tab.area}`)),
       el('div',{class:'acoes',style:'margin:0'},
-        el('button',{class:'secundario pequeno',onclick:()=>resolver(i,false)},`Manter ${fmtNota(c.atual.nota)} (${c.atual.acertos}/${c.atual.total})`),
-        el('button',{class:'secundario pequeno',onclick:()=>resolver(i,true)},`Usar ${fmtNota(c.nova.nota)} (${c.nova.acertos}/${c.nova.total})`))));
+        el('button',{class:'sec pequeno',onclick:()=>resolver(i,false)},`Manter ${fmtNota(c.atual.nota)} (já estava)`),
+        el('button',{class:'sec pequeno',onclick:()=>resolver(i,true)},`Usar ${fmtNota(c.nova.nota)} (PDF novo)`))));
   });
 }
 function resolver(i,usarNova){
   const c=conflitos[i];
-  if(usarNova){
-    const tab=banco.tabelas[c.chave];
-    const a=tab&&tab.alunos.find(x=>x.nome===c.nome);
-    if(a){Object.assign(a,c.nova);marcarPendente(true);}
+  if(usarNova){const a=banco.tabelas[c.chave].alunos.find(x=>x.nome===c.nome);if(a){Object.assign(a,c.nova);marcarPendente();}}
+  conflitos.splice(i,1); desenharConflitos(); atualizarContinuarPdfs();
+}
+function resolverTodos(usarNova){
+  if(usarNova) for(const c of conflitos){const a=banco.tabelas[c.chave].alunos.find(x=>x.nome===c.nome);if(a) Object.assign(a,c.nova);}
+  if(usarNova&&conflitos.length) marcarPendente();
+  conflitos=[]; desenharConflitos(); atualizarContinuarPdfs();
+}
+$('btTodasNovas').addEventListener('click',()=>resolverTodos(true));
+$('btTodasAntigas').addEventListener('click',()=>resolverTodos(false));
+function atualizarContinuarPdfs(){
+  const b=$('btPdfsContinuar');
+  b.disabled=!tocados.size||conflitos.length>0;
+  $('dicaContinuar').textContent=conflitos.length?'Para continuar, escolha qual nota vale nos casos acima.':!tocados.size?'Para continuar, solte pelo menos um PDF.':'';
+}
+$('btPdfsVoltar').addEventListener('click',async()=>{
+  if(tocados.size && !(await perguntar('Cancelar? Os PDFs soltos agora não vão para o site.','Cancelar os PDFs',true))) return;
+  if(tocados.size){await recarregarDoSite();}
+  irPara('telaInicio');
+});
+async function recarregarDoSite(){try{await abrirComAcesso(acesso,senhaCoordAtual);}catch(e){}}
+$('btPdfsContinuar').addEventListener('click',()=>{desenharConferir();irPara('telaConferir');});
+
+/* ============================================================
+   Passo 2: conferir
+   ============================================================ */
+function avisosDaTurma(simId,turma,areas){
+  const cont=areas.map(a=>{const t=banco.tabelas[chaveTabela(simId,turma,a)];return t?t.alunos.length:0;});
+  const preenchidas=cont.filter(n=>n>0), maior=Math.max(0,...preenchidas);
+  const avisos=[];
+  areas.forEach((a,i)=>{
+    if(!cont[i]) avisos.push(`${a}: falta o PDF`);
+    else if(preenchidas.length>1&&cont[i]<maior) avisos.push(`${a} com ${maior-cont[i]} aluno(s) a menos: pode faltar um PDF`);
+  });
+  return {cont,avisos};
+}
+function areasDoSimulado(s){
+  const minhas=Object.values(banco.tabelas).filter(t=>t.simulado===s.id).map(t=>t.area);
+  const esperadas=s.dia===1?['Linguagens','Ciências Humanas']:s.dia===2?['Ciências da Natureza','Matemática']:[];
+  return [...new Set([...esperadas,...minhas])].sort((a,b)=>{const ia=ORDEM_AREAS.indexOf(a),ib=ORDEM_AREAS.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+}
+function turmasDaSerie(s){
+  return [...new Set(Object.values(banco.tabelas).filter(t=>{const o=banco.simulados[t.simulado];return o&&o.serie===s.serie&&o.ano===s.ano;}).map(t=>t.turma))].sort(ordenarTurmas);
+}
+function desenharConferir(){
+  let total=0;
+  for(const id of tocados){const s=banco.simulados[id];for(const tu of turmasDaSerie(s)) total+=avisosDaTurma(id,tu,areasDoSimulado(s)).avisos.length;}
+  const aviso=$('avisoConferir'); aviso.replaceChildren();
+  aviso.append(total
+    ?el('p',{class:'atencao'},`${total} aviso(s) em amarelo ou vermelho. Você pode voltar e soltar os PDFs que faltam, ou continuar e completar outro dia.`)
+    :el('p',{class:'tudo-certo'},'Tudo certo: nenhuma turma com PDF faltando.'));
+  celulaAberta=null;
+  desenharGrade($('gradeConferir'),[...tocados],false);
+}
+$('btConferirVoltar').addEventListener('click',()=>irPara('telaPdfs'));
+$('btConferirContinuar').addEventListener('click',()=>{desenharVale();irPara('telaVale');});
+
+function desenharGrade(box,ids,podeExcluir){
+  box.replaceChildren();
+  const sims=ids.map(id=>banco.simulados[id]).filter(Boolean).sort((a,b)=>b.ano-a.ano||a.serie-b.serie||b.numero-a.numero||a.dia-b.dia);
+  if(!sims.length){box.append(el('p',{class:'ajuda'},'Nenhum simulado ainda.'));return;}
+  for(const s of sims){
+    const areas=areasDoSimulado(s), turmas=turmasDaSerie(s);
+    const bloco=el('div',{class:'simulado'});
+    bloco.append(el('div',{class:'simulado-cab'},
+      el('div',{},el('h4',{},tituloSimulado(s)),el('div',{class:'resumo'},s.valePara?`Lançar como ${s.valePara}`:'')),
+      podeExcluir?el('button',{class:'perigo pequeno',onclick:()=>excluirSimulado(s.id)},'Excluir este simulado'):null));
+    const corpo=el('tbody');
+    for(const tu of turmas){
+      const {cont,avisos}=avisosDaTurma(s.id,tu,areas);
+      const th=el('th',{class:'turma',scope:'row'},nomeTurma(tu),el('span',{class:'cod'},tu));
+      for(const av of avisos.filter(a=>!a.endsWith('falta o PDF'))) th.append(el('span',{class:'falta-pdf'},av));
+      const tr=el('tr',{},th);
+      areas.forEach((a,i)=>{
+        const chave=chaveTabela(s.id,tu,a);
+        if(!cont[i]) tr.append(el('td',{class:'vazia'},el('span',{},'falta')));
+        else tr.append(el('td',{class:celulaAberta===chave?'selecionada':''},
+          el('button',{'aria-label':`${nomeTurma(tu)}, ${a}: ${cont[i]} alunos. Ver lista`,onclick:()=>{celulaAberta=celulaAberta===chave?null:chave;desenharGrade(box,ids,podeExcluir);}},cont[i])));
+      });
+      corpo.append(tr);
+    }
+    bloco.append(el('div',{class:'rolagem'},el('table',{class:'grade'},el('thead',{},el('tr',{},el('th',{class:'turma'},'Turma'),...areas.map(a=>el('th',{},a)))),corpo)));
+    const t=celulaAberta&&banco.tabelas[celulaAberta];
+    if(t&&t.simulado===s.id){
+      const tb=el('tbody');
+      for(const a of [...t.alunos].sort((x,y)=>x.nome.localeCompare(y.nome,'pt-BR'))) tb.append(el('tr',{},el('td',{},a.nome),el('td',{class:'num'},fmtNota(a.nota)),el('td',{class:'num'},`${a.acertos}/${a.total}`)));
+      bloco.append(el('div',{class:'detalhe-lista'},el('h5',{},`${nomeTurma(t.turma)}, ${t.area}`),
+        el('div',{class:'rolagem'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Aluno'),el('th',{class:'num'},'Nota'),el('th',{class:'num'},'Acertos'))),tb)),
+        podeExcluir?el('div',{class:'acoes'},el('button',{class:'perigo pequeno',onclick:()=>excluirLista(t)},'Excluir esta lista')):null));
+    }
+    box.append(bloco);
   }
-  conflitos.splice(i,1);
-  desenharConflitos(); desenharBanco();
+}
+async function excluirLista(t){
+  if(!(await perguntar(`Excluir a lista de ${nomeTurma(t.turma)}, ${t.area}? Os ${t.alunos.length} alunos saem do site quando você publicar.`,'Excluir lista',true))) return;
+  delete banco.tabelas[chaveTabela(t.simulado,t.turma,t.area)];
+  if(!Object.values(banco.tabelas).some(x=>x.simulado===t.simulado)) delete banco.simulados[t.simulado];
+  celulaAberta=null; marcarPendente(); desenharGrade($('gradeVer'),Object.keys(banco.simulados),true);
+}
+async function excluirSimulado(id){
+  const s=banco.simulados[id];
+  if(!(await perguntar(`Excluir todo o ${tituloSimulado(s)}? Todas as listas dele saem do site quando você publicar.`,'Excluir simulado',true))) return;
+  for(const k of Object.keys(banco.tabelas)) if(banco.tabelas[k].simulado===id) delete banco.tabelas[k];
+  delete banco.simulados[id];
+  celulaAberta=null; marcarPendente(); desenharGrade($('gradeVer'),Object.keys(banco.simulados),true);
 }
 
-/* ---------- Visão do banco ---------- */
-function ordenarSimulados(a,b){return b.ano-a.ano||a.serie-b.serie||b.numero-a.numero||a.dia-b.dia||a.tipo.localeCompare(b.tipo);}
-function ordenarAreas(a,b){const ia=ORDEM_AREAS.indexOf(a),ib=ORDEM_AREAS.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);}
+/* ============================================================
+   Passo 3: vale para + publicar
+   ============================================================ */
+function desenharVale(){
+  const box=$('listaVale'); box.replaceChildren(); limpar($('msgPublicar'));
+  const sims=[...tocados].map(id=>banco.simulados[id]).filter(Boolean).sort((a,b)=>a.serie-b.serie||a.dia-b.dia);
+  for(const s of sims){
+    const id='vale-'+s.id;
+    const inp=el('input',{type:'text',id,value:s.valePara||'',placeholder:'Ex.: NM2',autocomplete:'off'});
+    inp.addEventListener('input',()=>{s.valePara=inp.value.trim();marcarPendente();});
+    box.append(el('div',{class:'vale'},el('label',{for:id},tituloSimulado(s)),inp));
+  }
+}
+$('btValeVoltar').addEventListener('click',()=>irPara('telaConferir'));
+$('btPublicar').addEventListener('click',()=>publicar($('btPublicar'),$('msgPublicar'),true));
+$('btPublicarBarra').addEventListener('click',async()=>{
+  const b=$('btPublicarBarra'); b.disabled=true; b.textContent='Publicando...';
+  try{await publicar(null,null,false);}finally{b.disabled=false;b.textContent='Publicar agora';}
+});
+async function publicar(botao,msg,irParaPronto){
+  if(botao) botao.disabled=true;
+  if(msg) mensagem(msg,'info','Publicando...');
+  try{
+    banco.atualizadoEm=new Date().toISOString();
+    const texto=await cifrar(banco,acesso.senhaProfessores);
+    await decifrar(texto,acesso.senhaProfessores); // confere antes de enviar
+    await salvarArquivoGitHub(acesso.token,'dados.enc',texto,'Atualiza as notas dos simulados');
+    pendente=false; atualizarBarra();
+    if(irParaPronto){$('linkProfessores').href=ENDERECO_PROFESSORES;$('linkProfessores').textContent=ENDERECO_PROFESSORES;irPara('telaPublicado');}
+    else if(telaAtual==='telaInicio') desenharInicio();
+    if(msg) limpar(msg);
+    return true;
+  }catch(err){
+    if(msg) mensagem(msg,'erro',err.message);
+    else await perguntar(err.message,'Entendi');
+    return false;
+  }finally{if(botao) botao.disabled=false;}
+}
+$('btPublicadoInicio').addEventListener('click',()=>irPara('telaInicio'));
 
+/* ============================================================
+   Lista completa das turmas (do robô do iSEduc)
+   ============================================================ */
+function desenharTurmas(){
+  const box=$('resumoTurmas'); box.replaceChildren(); limpar($('msgTurmas'));
+  const tc=banco.turmasCompletas||{}, cods=Object.keys(tc).sort(ordenarTurmas);
+  if(!cods.length){box.append(el('p',{class:'ajuda'},'Ainda não há lista completa de nenhuma turma.'));return;}
+  const tb=el('tbody');
+  for(const c of cods) tb.append(el('tr',{},el('td',{class:'codigo'},c),el('td',{},nomeTurma(c)),el('td',{},`${tc[c].alunos.length} alunos`)));
+  box.append(el('table',{class:'nomes'},el('thead',{},el('tr',{},el('th',{},'Código'),el('th',{},'Turma'),el('th',{},'Alunos'))),tb));
+}
+$('btTrazerTurmas').addEventListener('click',()=>$('arqTurmas').click());
+$('arqTurmas').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  const msg=$('msgTurmas');
+  let d; try{d=JSON.parse(await f.text());}catch(err){d=null;}
+  if(!d||d.formato!=='notas-simulados-turmas'||typeof d.turmas!=='object'){mensagem(msg,'erro','Esse não é o arquivo turmas-completas.json gerado pelo robô.');return;}
+  let n=0;
+  for(const[c,t] of Object.entries(d.turmas)){
+    if(!Array.isArray(t.alunos)||!t.alunos.length) continue;
+    banco.turmasCompletas[c]={alunos:t.alunos.map(x=>String(x).trim()).filter(Boolean),atualizadoEm:d.geradoEm||null};
+    if(!banco.nomesTurmas[c]) banco.nomesTurmas[c]=nomeAutomatico(c);
+    n++;
+  }
+  marcarPendente(); desenharTurmas();
+  mensagem(msg,'ok',`Listas de ${n} turma(s) trazidas. Clique em "Publicar agora", embaixo, para os professores verem.`);
+});
+
+/* ============================================================
+   Nomes das turmas
+   ============================================================ */
 function desenharNomes(){
   const box=$('nomes'); box.replaceChildren();
-  const usados=new Set(Object.values(banco.tabelas).map(t=>t.turma));
-  const codigos=[...usados].sort((a,b)=>(a.match(/\d/)||[''])[0].localeCompare((b.match(/\d/)||[''])[0])||ordenarTurmas(a,b));
-  if(!codigos.length){box.append(el('p',{class:'vazio-banco'},'As turmas aparecem aqui depois dos PDFs.'));return;}
+  const cods=[...new Set([...Object.values(banco.tabelas).map(t=>t.turma),...Object.keys(banco.turmasCompletas||{})])]
+    .sort((a,b)=>(a.match(/\d/)||[''])[0].localeCompare((b.match(/\d/)||[''])[0])||ordenarTurmas(a,b));
+  if(!cods.length){box.append(el('p',{class:'ajuda'},'As turmas aparecem aqui depois dos PDFs.'));return;}
   const tb=el('tbody');
-  for(const c of codigos){
+  for(const c of cods){
     const inp=el('input',{type:'text',value:nomeTurma(c),'aria-label':`Nome da turma ${c}`});
-    inp.addEventListener('change',()=>{
-      const v=inp.value.trim()||nomeAutomatico(c);
-      inp.value=v;
-      if(banco.nomesTurmas[c]!==v){banco.nomesTurmas[c]=v;marcarPendente(true);desenharConflitos();desenharBanco(false);}
-    });
+    inp.addEventListener('change',()=>{const v=inp.value.trim()||nomeAutomatico(c);inp.value=v;if(banco.nomesTurmas[c]!==v){banco.nomesTurmas[c]=v;marcarPendente();}});
     tb.append(el('tr',{},el('td',{class:'codigo'},c),el('td',{},inp)));
   }
   box.append(el('table',{class:'nomes'},el('thead',{},el('tr',{},el('th',{},'Código'),el('th',{},'Nome que os professores veem'))),tb));
 }
 
-function desenharBanco(comNomes=true){
-  if(comNomes) desenharNomes();
-  const box=$('banco'); box.replaceChildren();
-  const sims=Object.values(banco.simulados).sort(ordenarSimulados);
-  if(!sims.length){box.append(el('p',{class:'vazio-banco'},'Nenhum simulado ainda. Adicione os PDFs acima.'));return;}
-  const tabelas=Object.values(banco.tabelas);
-  for(const s of sims){
-    const minhas=tabelas.filter(t=>t.simulado===s.id);
-    const esperadas=s.dia===1?['Linguagens','Ciências Humanas']:s.dia===2?['Ciências da Natureza','Matemática']:[];
-    const areas=[...new Set([...esperadas,...minhas.map(t=>t.area)])].sort(ordenarAreas);
-    // turmas da mesma série e ano que já apareceram em qualquer simulado, para notar ausências
-    const turmasSerie=new Set(tabelas.filter(t=>{const o=banco.simulados[t.simulado];return o&&o.serie===s.serie&&o.ano===s.ano;}).map(t=>t.turma));
-    const turmas=[...turmasSerie].sort(ordenarTurmas);
-    const totalAlunos=new Set(minhas.flatMap(t=>t.alunos.map(a=>t.turma+'|'+a.nome))).size;
-
-    const bloco=el('div',{class:'simulado'});
-    bloco.append(el('div',{class:'simulado-cab'},
-      el('div',{},el('h3',{},tituloSimulado(s)),el('div',{class:'resumo'},`${s.ano}, ${turmas.length} turma(s), ${totalAlunos} aluno(s)`)),
-      el('button',{class:'perigo pequeno',onclick:()=>excluirSimulado(s.id)},'Excluir simulado')));
-
-    // Para qual nota do iSEduc esse simulado vale (ex.: NM2). Os professores veem isso em destaque.
-    const idVale='vale-'+s.id;
-    const vale=el('input',{type:'text',id:idVale,value:s.valePara||'',placeholder:'Ex.: NM2'});
-    vale.addEventListener('change',()=>{const v=vale.value.trim();if((s.valePara||'')!==v){s.valePara=v;marcarPendente(true);}});
-    bloco.append(el('div',{class:'vale'},el('label',{for:idVale},'Vale para a nota'),vale));
-
-    const thead=el('tr',{},el('th',{class:'turma'},'Turma'),...areas.map(a=>el('th',{},a)));
-    const corpo=el('tbody');
-    for(const tu of turmas){
-      const contagens=areas.map(a=>{const t=banco.tabelas[chaveTabela(s.id,tu,a)];return t?t.alunos.length:0;});
-      const preenchidas=contagens.filter(n=>n>0);
-      // As áreas do mesmo dia são a mesma prova: o número de alunos deveria ser igual.
-      // Quando uma tem menos, quase sempre falta o PDF de um dos grupos.
-      const maior=Math.max(0,...preenchidas);
-      const avisos=preenchidas.length>1?areas.map((a,i)=>contagens[i]>0&&contagens[i]<maior
-        ?`${a} com ${maior-contagens[i]} aluno(s) a menos: pode faltar um PDF`:null).filter(Boolean):[];
-      const th=el('th',{class:'turma',scope:'row'},nomeTurma(tu),el('span',{class:'cod'},tu));
-      for(const av of avisos) th.append(el('span',{class:'falta-pdf'},av));
-      const tr=el('tr',{},th);
-      areas.forEach((a,i)=>{
-        const chave=chaveTabela(s.id,tu,a);
-        if(!contagens[i]) tr.append(el('td',{class:'vazia'},'falta'));
-        else{
-          const td=el('td',{class:celulaAberta===chave?'selecionada':''},
-            el('button',{'aria-label':`${nomeTurma(tu)}, ${a}: ${contagens[i]} alunos. Ver lista`,onclick:()=>{celulaAberta=celulaAberta===chave?null:chave;desenharBanco();}},contagens[i]));
-          tr.append(td);
-        }
-      });
-      corpo.append(tr);
-    }
-    bloco.append(el('div',{class:'rolagem'},el('table',{class:'grade'},el('thead',{},thead),corpo)));
-
-    if(celulaAberta && banco.tabelas[celulaAberta] && banco.tabelas[celulaAberta].simulado===s.id){
-      const t=banco.tabelas[celulaAberta];
-      const alunos=[...t.alunos].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
-      const tb=el('tbody');
-      for(const a of alunos) tb.append(el('tr',{},el('td',{},a.nome),el('td',{class:'num'},fmtNota(a.nota)),el('td',{class:'num'},`${a.acertos}/${a.total}`)));
-      bloco.append(el('div',{class:'detalhe-lista'},
-        el('h4',{},`${nomeTurma(t.turma)}, ${t.area}`),
-        el('div',{class:'rolagem'},el('table',{},el('thead',{},el('tr',{},el('th',{},'Aluno'),el('th',{class:'num'},'Nota'),el('th',{class:'num'},'Acertos'))),tb)),
-        el('div',{class:'acoes'},el('button',{class:'perigo pequeno',onclick:()=>excluirTabela(celulaAberta)},'Excluir esta lista'))));
-    }
-    box.append(bloco);
-  }
-}
-async function excluirTabela(chave){
-  const t=banco.tabelas[chave]; if(!t) return;
-  if(!(await perguntar(`Excluir a lista de ${t.turma}, ${t.area}? Os ${t.alunos.length} alunos saem do banco.`,'Excluir lista',true))) return;
-  delete banco.tabelas[chave];
-  if(!Object.values(banco.tabelas).some(x=>x.simulado===t.simulado)) delete banco.simulados[t.simulado];
-  conflitos=conflitos.filter(c=>c.chave!==chave);
-  celulaAberta=null; marcarPendente(true); desenharConflitos(); desenharBanco();
-}
-async function excluirSimulado(id){
-  const s=banco.simulados[id];
-  if(!(await perguntar(`Excluir todo o ${tituloSimulado(s)} de ${s.ano}? Todas as listas dele saem do banco.`,'Excluir simulado',true))) return;
-  for(const k of Object.keys(banco.tabelas)) if(banco.tabelas[k].simulado===id) delete banco.tabelas[k];
-  delete banco.simulados[id];
-  conflitos=conflitos.filter(c=>!c.chave.startsWith(id+'|'));
-  celulaAberta=null; marcarPendente(true); desenharConflitos(); desenharBanco();
-}
-
-/* ---------- Salvar ---------- */
-$('btBaixar').addEventListener('click',async()=>{
-  const n1=limparSenha($('novaSenha').value), n2=limparSenha($('novaSenha2').value);
-  let senha=senhaAtual;
-  if(n1||n2){
-    if(n1!==n2){mensagem($('msgSalvar'),'erro','As duas novas senhas não são iguais.');return;}
-    senha=n1;
-  }
-  if(senha.length<SENHA_MINIMA){mensagem($('msgSalvar'),'erro',AVISO_SENHA+' Escreva a senha nova nos dois campos acima.');return;}
-  if(conflitos.length && !(await perguntar(`Ainda há ${conflitos.length} nota(s) diferente(s) sem decisão. Nesses casos fica a nota que já estava.`,'Baixar assim mesmo'))) return;
-  mensagem($('msgSalvar'),'info','Trancando o arquivo...');
+/* ============================================================
+   Trocar senhas
+   ============================================================ */
+$('btSalvarSenhaProf').addEventListener('click',async()=>{
+  const msg=$('msgSenhaProf'), nova=limparSenha($('novaSenhaProf').value);
+  if(nova.length<SENHA_MINIMA){mensagem(msg,'erro',AVISO_SENHA);return;}
+  if(nova===senhaCoordAtual){mensagem(msg,'erro','A senha dos professores precisa ser diferente da senha da coordenação.');return;}
+  if(!(await perguntar(`A senha dos professores vai passar a ser: ${nova}. Confirmar?`,'Salvar a senha nova'))) return;
+  $('btSalvarSenhaProf').disabled=true; mensagem(msg,'info','Salvando...');
   try{
     banco.atualizadoEm=new Date().toISOString();
-    const texto=await cifrar(banco,senha);
-    // Confere, antes de baixar, que o arquivo abre com a senha que vai ser mostrada.
-    const teste=await decifrar(texto,senha);
-    if(Object.keys(teste.tabelas).length!==Object.keys(banco.tabelas).length) throw new Error('o teste do arquivo falhou.');
-    const url=URL.createObjectURL(new Blob([texto],{type:'application/octet-stream'}));
-    const a=document.createElement('a'); a.href=url; a.download='dados.enc'; document.body.append(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
-    const trocou=senha!==senhaAtual;
-    senhaAtual=senha; $('senha').value=senha; $('novaSenha').value=''; $('novaSenha2').value='';
-    marcarPendente(false);
-    mensagem($('msgSalvar'),'ok',`Arquivo baixado e testado. Ele abre com a senha: ${senha}  (anote antes de enviar).`+(trocou?' A senha mudou: avise os professores.':' Agora envie ao GitHub seguindo os passos abaixo.'));
-  }catch(e){mensagem($('msgSalvar'),'erro','Não foi possível gerar o arquivo: '+e.message);}
+    const novoAcesso={...acesso,senhaProfessores:nova};
+    await salvarArquivoGitHub(acesso.token,'dados.enc',await cifrar(banco,nova),'Troca a senha dos professores');
+    await salvarArquivoGitHub(acesso.token,'acesso.enc',await cifrar(novoAcesso,senhaCoordAtual),'Troca a senha dos professores');
+    acesso=novoAcesso; pendente=false; $('novaSenhaProf').value='';
+    mensagem(msg,'ok',`Senha dos professores trocada. A nova é: ${nova}. Anote e avise os professores.`);
+  }catch(err){mensagem(msg,'erro',err.message+' A senha não foi trocada por completo: tente de novo.');}
+  finally{$('btSalvarSenhaProf').disabled=false;}
 });
+$('btSalvarSenhaCoord').addEventListener('click',async()=>{
+  const msg=$('msgSenhaCoord'), nova=limparSenha($('novaSenhaCoord').value);
+  if(nova.length<SENHA_MINIMA){mensagem(msg,'erro',AVISO_SENHA);return;}
+  if(nova===acesso.senhaProfessores){mensagem(msg,'erro','A senha da coordenação precisa ser diferente da senha dos professores.');return;}
+  if(!(await perguntar(`A senha da coordenação vai passar a ser: ${nova}. Confirmar?`,'Salvar a senha nova'))) return;
+  $('btSalvarSenhaCoord').disabled=true; mensagem(msg,'info','Salvando...');
+  try{
+    await salvarArquivoGitHub(acesso.token,'acesso.enc',await cifrar(acesso,nova),'Troca a senha da coordenação');
+    senhaCoordAtual=nova; $('novaSenhaCoord').value='';
+    mensagem(msg,'ok',`Senha da coordenação trocada. A nova é: ${nova}. Anote.`);
+  }catch(err){mensagem(msg,'erro',err.message);}
+  finally{$('btSalvarSenhaCoord').disabled=false;}
+});
+
+$('senhaCoord').focus();
 </script>
 </body>
 </html>
