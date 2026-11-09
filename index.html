@@ -81,6 +81,22 @@ button:disabled{opacity:.5;cursor:not-allowed}
 /* Escolhas */
 .escolhas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin-bottom:22px}
 @media (max-width:640px){.escolhas{grid-template-columns:minmax(0,1fr)}}
+.campo{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;font:inherit;font-weight:600;
+  color:var(--tinta);background:var(--papel);border:1px solid var(--campo);border-radius:4px;padding:9px 12px;min-height:44px;
+  text-align:left;cursor:pointer}
+.campo .valor{min-width:0}
+.campo svg{width:18px;height:18px;flex-shrink:0;color:var(--suave);transition:transform .15s}
+.campo[aria-expanded=true]{border-color:var(--tinta);border-radius:4px 4px 0 0}
+.campo[aria-expanded=true] svg{transform:rotate(180deg)}
+.opcoes{background:var(--papel);border:1px solid var(--tinta);border-top:0;border-radius:0 0 4px 4px;padding:4px 12px 14px}
+.opcoes[hidden]{display:none}
+.grupo-titulo{margin:10px 0 6px;font-size:13px;font-weight:700;color:var(--suave)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.opcoes > .chips:first-child{margin-top:10px}
+.chip{font:inherit;font-size:15px;font-weight:600;color:var(--tinta);background:var(--fundo);border:1px solid var(--fio);
+  border-radius:999px;padding:8px 14px;min-height:42px;cursor:pointer;text-align:left}
+.chip:hover{border-color:var(--campo)}
+.chip[aria-pressed=true]{background:var(--tinta);color:var(--papel);border-color:var(--tinta)}
 
 /* Abas do fichário */
 .abas{display:flex;gap:4px;padding-left:10px;overflow-x:auto;padding-bottom:1px;margin-bottom:-1px}
@@ -195,9 +211,20 @@ h2.turma{margin:0;font-size:26px;font-weight:800;letter-spacing:-.01em}
 </section>
 
 <div id="painel" class="oculto">
+  <!-- Turma e simulado: a lista abre dentro da própria página (os <select> escondidos guardam a escolha). -->
   <div class="escolhas">
-    <div><label for="selTurma">Turma</label><select id="selTurma"></select></div>
-    <div><label for="selSimulado">Simulado</label><select id="selSimulado"></select></div>
+    <div>
+      <label for="btTurma">Turma</label>
+      <button type="button" class="campo" id="btTurma" aria-expanded="false" aria-controls="opcTurma"><span class="valor"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="opcoes" id="opcTurma" hidden></div>
+      <select id="selTurma" class="oculto" tabindex="-1" aria-hidden="true"></select>
+    </div>
+    <div>
+      <label for="btSimulado">Simulado</label>
+      <button type="button" class="campo" id="btSimulado" aria-expanded="false" aria-controls="opcSimulado"><span class="valor"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="opcoes" id="opcSimulado" hidden></div>
+      <select id="selSimulado" class="oculto" tabindex="-1" aria-hidden="true"></select>
+    </div>
   </div>
 
   <div class="abas" role="tablist" aria-label="Área" id="abas"></div>
@@ -373,7 +400,7 @@ $('formEntrar').addEventListener('submit',e=>{
   entrar(s,false);
 });
 $('btSair').addEventListener('click',()=>{
-  apagar(CHAVE_SENHA); banco=null;
+  apagar(CHAVE_SENHA); banco=null; fecharEscolhas();
   $('painel').classList.add('oculto'); $('btSair').classList.add('oculto'); $('blocoEntrar').classList.remove('oculto');
   $('lembrar').checked=false; limparMensagem($('msgEntrar')); $('senha').focus();
 });
@@ -418,8 +445,43 @@ function montarAbas(){
     box.append(b);
   });
   $('folha').style.setProperty('--cor-aba',infoArea(areaAtual).cor);
+  desenharEscolha('selTurma','btTurma','opcTurma'); desenharEscolha('selSimulado','btSimulado','opcSimulado');
   salvarEscolha(); desenharResultado();
 }
+// "Logística, 1ª série B" vira "Logística · B" dentro do grupo "1ª série".
+function textoCurto(t){const m=t.match(/^(.*?),\s*\d+ª série\s+(\S+)$/);return m?`${m[1]} · ${m[2]}`:t;}
+function fecharEscolhas(){
+  for(const bt of document.querySelectorAll('.campo')){bt.setAttribute('aria-expanded','false');$(bt.getAttribute('aria-controls')).hidden=true;}
+}
+function desenharEscolha(idSel,idBt,idOpc){
+  const sel=$(idSel), bt=$(idBt), box=$(idOpc);
+  const atual=sel.options[sel.selectedIndex];
+  bt.querySelector('.valor').textContent=atual?atual.textContent:'';
+  box.replaceChildren();
+  const chips=(opcoes,curto)=>{
+    const d=el('div',{class:'chips'});
+    for(const o of opcoes){
+      const b=el('button',{type:'button',class:'chip','aria-pressed':String(o.value===sel.value)},curto?textoCurto(o.textContent):o.textContent);
+      b.addEventListener('click',()=>{
+        fecharEscolhas(); bt.focus();
+        if(sel.value!==o.value){sel.value=o.value;sel.dispatchEvent(new Event('change'));}
+      });
+      d.append(b);
+    }
+    return d;
+  };
+  const grupos=sel.querySelectorAll('optgroup');
+  if(grupos.length) grupos.forEach(g=>box.append(el('p',{class:'grupo-titulo'},g.label),chips(g.querySelectorAll('option'),true)));
+  else box.append(chips(sel.querySelectorAll('option'),false));
+}
+for(const bt of document.querySelectorAll('.campo')){
+  bt.addEventListener('click',()=>{
+    const aberto=bt.getAttribute('aria-expanded')==='true';
+    fecharEscolhas();
+    if(!aberto){bt.setAttribute('aria-expanded','true');$(bt.getAttribute('aria-controls')).hidden=false;}
+  });
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.querySelector('.campo[aria-expanded=true]')){const bt=document.querySelector('.campo[aria-expanded=true]');fecharEscolhas();bt.focus();}});
 $('selTurma').addEventListener('change',()=>{salvarEscolha();montarSimulados();});
 $('selSimulado').addEventListener('change',()=>{salvarEscolha();montarAbas();});
 
