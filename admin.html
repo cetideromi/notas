@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F3F3F1" id="corBarra">
+<script>
+/* Aplica o fundo escolhido antes de desenhar a página, para não piscar. */
+try{var temaSalvo=JSON.parse(localStorage.getItem('notasSimulados.tema'));
+  if(temaSalvo==='claro'||temaSalvo==='escuro')document.documentElement.setAttribute('data-tema',temaSalvo);}catch(e){}
+</script>
 <title>Notas dos simulados, coordenação</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,20 +23,41 @@
   --amarelo:#FFE45C;
   color-scheme:light;
 }
+/* Fundo escuro: segue o aparelho, a não ser que a pessoa tenha escolhido no botão do topo. */
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-tema=claro]){
     --fundo:#161717; --papel:#1F2121; --tinta:#ECEDEB; --suave:#A3A7A9; --linha:#353838; --campo:#555958;
     --ambar:#F2C460; --ambar-claro:#3A3018; --vermelho:#FF8C8C; --vermelho-claro:#3D2224; --ok:#8FD6A8; --ok-claro:#1E3326;
     color-scheme:dark;
   }
 }
+:root[data-tema=escuro]{
+  --fundo:#161717; --papel:#1F2121; --tinta:#ECEDEB; --suave:#A3A7A9; --linha:#353838; --campo:#555958;
+  --ambar:#F2C460; --ambar-claro:#3A3018; --vermelho:#FF8C8C; --vermelho-claro:#3D2224; --ok:#8FD6A8; --ok-claro:#1E3326;
+  color-scheme:dark;
+}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--fundo);color:var(--tinta);font:16px/1.5 "Hanken Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .pagina{max-width:900px;margin:0 auto;padding:22px 16px 110px}
-.topo{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:20px}
+.topo{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
 .topo h1{margin:0;font-size:22px;font-weight:800}
 .topo p{margin:0;color:var(--suave);font-size:15px}
+.topo .acoes{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.tema{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:15px;font-weight:600;color:var(--tinta);
+  background:var(--papel);border:1px solid var(--linha);border-radius:999px;padding:6px 14px 6px 11px;min-height:44px;cursor:pointer}
+.tema:hover{border-color:var(--campo)}
+.tema svg{width:20px;height:20px;flex-shrink:0}
+.tema .lua{display:none}
+.tema.vai-escuro .sol{display:none}
+.tema.vai-escuro .lua{display:block}
+@media (max-width:640px){
+  .topo{gap:10px}
+  .topo h1{font-size:20px;line-height:1.25}
+  .topo .acoes{gap:10px}
+  .tema{width:44px;padding:0;justify-content:center}
+  .tema .texto{display:none}
+}
 .tela{background:var(--papel);border:1px solid var(--linha);border-radius:4px;padding:24px}
 @media (max-width:640px){.tela{padding:16px}}
 .etapa{margin:0 0 4px;font-size:15px;font-weight:700;color:var(--suave)}
@@ -155,7 +182,14 @@ dialog.caixa button.perigo{background:var(--vermelho);color:#fff}
 
 <header class="topo">
   <div><h1>Notas dos simulados</h1><p>Coordenação, CETI Antonio Deromi Soares</p></div>
-  <button class="link oculto" id="btSair">Sair</button>
+  <div class="acoes">
+    <button type="button" class="tema" id="btTema">
+      <svg class="sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/></svg>
+      <span class="texto" id="txtTema">Fundo claro</span>
+    </button>
+    <button class="link oculto" id="btSair">Sair</button>
+  </div>
 </header>
 
 <!-- ENTRAR -->
@@ -366,6 +400,35 @@ dialog.caixa button.perigo{background:var(--vermelho);color:#fff}
 </dialog>
 
 <script>
+/* ============================================================
+   Fundo claro ou escuro (mesma escolha da página dos professores)
+   ============================================================ */
+(()=>{
+  const CHAVE_TEMA='notasSimulados.tema';
+  const escuroNoAparelho=window.matchMedia?matchMedia('(prefers-color-scheme: dark)'):null;
+  const temaAtual=()=>{
+    const t=document.documentElement.getAttribute('data-tema');
+    if(t==='claro'||t==='escuro') return t;
+    return escuroNoAparelho&&escuroNoAparelho.matches?'escuro':'claro';
+  };
+  const mostrarTema=()=>{
+    const escuro=temaAtual()==='escuro', bt=document.getElementById('btTema');
+    const texto=escuro?'Fundo claro':'Fundo escuro';
+    bt.classList.toggle('vai-escuro',!escuro);
+    document.getElementById('txtTema').textContent=texto;
+    bt.setAttribute('aria-label','Trocar para '+texto.toLowerCase()); bt.title='Trocar para '+texto.toLowerCase();
+    document.getElementById('corBarra').setAttribute('content',escuro?'#161717':'#F3F3F1');
+  };
+  document.getElementById('btTema').addEventListener('click',()=>{
+    const novo=temaAtual()==='escuro'?'claro':'escuro';
+    document.documentElement.setAttribute('data-tema',novo);
+    try{localStorage.setItem(CHAVE_TEMA,JSON.stringify(novo));}catch(e){}
+    mostrarTema();
+  });
+  if(escuroNoAparelho&&escuroNoAparelho.addEventListener) escuroNoAparelho.addEventListener('change',mostrarTema);
+  mostrarTema();
+})();
+
 /* ============================================================
    Onde o site está no GitHub (ex.: cetideromi.github.io/notas -> cetideromi/notas)
    ============================================================ */
